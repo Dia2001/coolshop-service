@@ -69,7 +69,7 @@ namespace API_ShopingClose.Entities
         /// <summary>
         /// Ngày xóa gần nhất
         /// </summary>
-        public string Delete_date { get; set; }
+        public string Deleted_Date { get; set; }
 
         /// <summary>
         /// ID Role
