@@ -1,4 +1,4 @@
-﻿using API_ShopingClose.API_ShopingClose_DAO;
+﻿using API_ShopingClose.API_ShopingClose_Dao;
 using API_ShopingClose.Entities;
 using API_ShopingClose.Helper;
 using Dapper;
@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MySqlConnector;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/roles")]
     [ApiController]
     public class RolesController : ControllerBase
     {
@@ -28,6 +29,9 @@ namespace API_ShopingClose.Controllers
         /// <returns>Danh sách tất cà các role</returns
         /// Created by: NVDIA(18/9/2022)
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Role))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllRoles()
         {
             try
