@@ -1,4 +1,5 @@
-﻿using API_ShopingClose.Entities;
+﻿using API_ShopingClose.API_ShopingClose_DAO;
+using API_ShopingClose.Entities;
 using API_ShopingClose.Helper;
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +17,11 @@ namespace API_ShopingClose.Controllers
     [ApiController]
     public class RolesController : ControllerBase
     {
-        private readonly IConfiguration _config;
-        private string connectionString = AppSettings.Instance.ConnectionString;
-
+        RoleDeptService _roleservice;
+        public RolesController()
+        {
+            _roleservice =new RoleDeptService();
+        }
         /// <summary>
         /// API lấy tất cả các role
         /// </summary>
@@ -29,19 +32,11 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-                // Khởi tạo kết nối tới DB MySQL
-                var mySqlConnection = new MySqlConnection(connectionString);
 
-                // Chuẩn bị câu lệnh truy vấn
-                string getAllRolesCommand = "SELECT * FROM roles;";
-
-                // Thực hiện gọi vào DB để chạy câu lệnh truy vấn ở trên
-                var roles = mySqlConnection.Query<Role>(getAllRolesCommand);
-
-                // Xử lý dữ liệu trả về
+                var roles=_roleservice.GetAllRole();
+                // Nếu roles khác null thì trả về toàn bộ các role ngoài ra thì báo lỗi
                 if (roles != null)
                 {
-                    // Trả về dữ liệu cho client
                     return StatusCode(StatusCodes.Status200OK, roles);
                 }
                 else

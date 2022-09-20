@@ -1,4 +1,5 @@
-﻿using API_ShopingClose.Entities;
+﻿using API_ShopingClose.API_ShopingClose_DAO;
+using API_ShopingClose.Entities;
 using API_ShopingClose.Helper;
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
@@ -18,10 +19,11 @@ namespace API_ShopingClose.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IConfiguration _config;
-        private string connectionString = AppSettings.Instance.ConnectionString;
+        UserDeptService _userservice;
         public UsersController( IConfiguration config)
         {
             _config = config;
+            _userservice = new UserDeptService();
         }
         /// <summary>
         /// API lấy tất cả các user
@@ -32,23 +34,15 @@ namespace API_ShopingClose.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(List<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllRoles()
+        public IActionResult GetAllUsers()
         {
             try
-            {
-                // Khởi tạo kết nối tới DB MySQL
-                var mySqlConnection = new MySqlConnection(connectionString);
+            {    
+                var users = _userservice.GetAllUser();
 
-                // Chuẩn bị câu lệnh truy vấn
-                string getAllUsersCommand = "SELECT * FROM users;";
-
-                // Thực hiện gọi vào DB để chạy câu lệnh truy vấn ở trên
-                var users = mySqlConnection.Query<User>(getAllUsersCommand);
-
-                // Xử lý dữ liệu trả về
+                // Nếu users khác null thì trả về toàn bộ user ngoài ra báo lỗi
                 if (users != null)
                 {
-                    // Trả về dữ liệu cho client
                     return StatusCode(StatusCodes.Status200OK, users);
                 }
                 else
@@ -73,22 +67,13 @@ namespace API_ShopingClose.Controllers
 
             try
             {
-                // Khởi tạo kết nối tới DB MySQL
-                var mySqlConnection = new MySqlConnection(connectionString);
 
-                // Chuẩn bị câu lệnh truy vấn
-                string getUsersByUPCommand = "SELECT * FROM users " +
-                    "where user_name='" + username + "' AND " +
-                    "password='" + password + "';";
+                var users = _userservice.Login(username, password);
 
-                // Thực hiện gọi vào DB để chạy câu lệnh truy vấn ở trên
-                var users = mySqlConnection.Query<User>(getUsersByUPCommand);
-
-                // Xử lý dữ liệu trả về
+                // Nếu user khác null thì trả về token đăng nhập ngoài ra báo lỗi
                 if (users != null)
                 {
                     var token = GenerateToken(username, password);
-                    // Trả về dữ liệu cho client
                     return StatusCode(StatusCodes.Status200OK, token);
                 }
                 else
@@ -102,6 +87,8 @@ namespace API_ShopingClose.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
         }
+
+        // Trả về token đăng nhập
         private string GenerateToken(string username, string password)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
