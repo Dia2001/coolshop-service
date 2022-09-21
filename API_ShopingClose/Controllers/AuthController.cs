@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace API_ShopingClose.Controllers
@@ -15,15 +14,21 @@ namespace API_ShopingClose.Controllers
             _logger = logger;
         }
 
-        protected Guid GetUserId()
+        protected Guid? GetUserId()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-            var userClaims = identity.Claims;
+            var userClaims = identity?.Claims;
 
-            var Id = userClaims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var Id = userClaims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            return new Guid(Id);
+            if (Id != null)
+            {
+                return new Guid(Id);
+            }
+            else
+            {
+                return null;
+            }
         }
-
     }
 }

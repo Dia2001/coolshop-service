@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using API_ShopingClose.API_ShopingClose_DAO;
+using MySqlConnector;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -13,6 +15,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters()
         {
+
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -38,6 +41,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+string conn = builder.Configuration.GetConnectionString("mysqlConnetionStrings");
+
+// Mỗi khi chạy ứng dụng nó chỉ khởi tạo đúng 1 lần new UserDeptService
+builder.Services.AddSingleton<UserDeptService>(s =>
+    new UserDeptService(new MySqlConnection(conn)));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

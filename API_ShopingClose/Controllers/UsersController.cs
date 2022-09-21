@@ -1,9 +1,6 @@
 ﻿using API_ShopingClose.API_ShopingClose_DAO;
 using API_ShopingClose.Entities;
-using API_ShopingClose.Helper;
-using Dapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MySqlConnector;
@@ -11,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
@@ -21,10 +19,11 @@ namespace API_ShopingClose.Controllers
         private readonly IConfiguration _config;
         UserDeptService _userservice;
 
-        public UsersController( IConfiguration config, ILogger<UsersController> logger) : base(logger)
+        public UsersController(IConfiguration config, ILogger<UsersController> logger,
+            UserDeptService userDeptService) : base(logger)
         {
             _config = config;
-            _userservice = new UserDeptService();
+            _userservice = userDeptService;
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace API_ShopingClose.Controllers
         public IActionResult GetAllUsers()
         {
             try
-            {    
+            {
                 var users = _userservice.GetAllUser();
 
                 // Nếu users khác null thì trả về toàn bộ user ngoài ra báo lỗi
@@ -68,7 +67,7 @@ namespace API_ShopingClose.Controllers
         [HttpPost("login")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult Login([FromQuery] string username, [FromQuery] string password)
+        public IActionResult Login([FromBody] UserLogin userLogin)
         {
             if (!ModelState.IsValid)
             {
@@ -78,7 +77,7 @@ namespace API_ShopingClose.Controllers
             try
             {
 
-                var users = _userservice.Login(username, password);
+                var users = _userservice.Login(userLogin.username, userLogin.password);
 
                 // Nếu user khác null thì trả về token đăng nhập ngoài ra báo lỗi
                 if (users != null)
@@ -112,9 +111,9 @@ namespace API_ShopingClose.Controllers
             try
             {
                 //Nếu thêm thành công thì trả về id của user ngoài ra thì thông báo lỗi
-                if (_userservice.InsertUser(user)==true)
+                if (_userservice.InsertUser(user) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created,user.User_ID);
+                    return StatusCode(StatusCodes.Status201Created, user.User_ID);
                 }
                 else
                 {
@@ -134,10 +133,10 @@ namespace API_ShopingClose.Controllers
                 Console.WriteLine(exception.Message);
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
-        } 
-        
-         /// <summary>
-         /// API lấy profile user đang đăng nhập
+        }
+
+        /// <summary>
+        /// API lấy profile user đang đăng nhập
         /// </summary>
         /// <returns>User đang đăng nhập vào hệ thống</returns>
         /// Created by: NVDIA(20/9/2022)
@@ -151,16 +150,25 @@ namespace API_ShopingClose.Controllers
             try
             {
                 var Id = GetUserId().ToString();
-                var users = _userservice.GetProfileUser(Id);
 
-                // Nếu users khác null thì trả về toàn bộ user ngoài ra báo lỗi
-                if (users != null)
+                // Nếu không tìm thấy Id thì trả về lỗi
+                if (Id == null)
                 {
-                    return StatusCode(StatusCodes.Status200OK, users);
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    var users = _userservice.GetProfileUser(Id);
+
+                    // Nếu users khác null thì trả về toàn bộ user ngoài ra báo lỗi
+                    if (users != null)
+                    {
+                        return StatusCode(StatusCodes.Status200OK, users);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    }
                 }
             }
             catch (Exception exception)

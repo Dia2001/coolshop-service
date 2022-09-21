@@ -1,16 +1,7 @@
 ﻿using API_ShopingClose.API_ShopingClose_DAO;
 using API_ShopingClose.Entities;
-using API_ShopingClose.Helper;
-using Dapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using MySqlConnector;
 using Swashbuckle.AspNetCore.Annotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace API_ShopingClose.Controllers
 {
@@ -21,7 +12,7 @@ namespace API_ShopingClose.Controllers
         RoleDeptService _roleservice;
         public RolesController()
         {
-            _roleservice =new RoleDeptService();
+            _roleservice = new RoleDeptService();
         }
         /// <summary>
         /// API lấy tất cả các role
@@ -37,7 +28,7 @@ namespace API_ShopingClose.Controllers
             try
             {
 
-                var roles=_roleservice.GetAllRole();
+                var roles = _roleservice.GetAllRole();
                 // Nếu roles khác null thì trả về toàn bộ các role ngoài ra thì báo lỗi
                 if (roles != null)
                 {
