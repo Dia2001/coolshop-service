@@ -5,7 +5,7 @@ using MySqlConnector;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace API_ShopingClose.API_ShopingClose_Dao
+namespace API_ShopingClose.API_ShopingClose_DAO
 {
     public class UserDeptService
     {

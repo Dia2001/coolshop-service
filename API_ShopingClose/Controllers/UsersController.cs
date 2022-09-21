@@ -1,4 +1,4 @@
-﻿using API_ShopingClose.API_ShopingClose_Dao;
+﻿using API_ShopingClose.API_ShopingClose_DAO;
 using API_ShopingClose.Entities;
 using API_ShopingClose.Helper;
 using Dapper;

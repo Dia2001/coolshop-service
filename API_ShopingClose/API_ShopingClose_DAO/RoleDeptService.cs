@@ -3,7 +3,7 @@ using API_ShopingClose.Helper;
 using Dapper;
 using MySqlConnector;
 
-namespace API_ShopingClose.API_ShopingClose_Dao
+namespace API_ShopingClose.API_ShopingClose_DAO
 {
     public class RoleDeptService
     {
