@@ -47,6 +47,8 @@ string conn = builder.Configuration.GetConnectionString("mysqlConnetionStrings")
 // Mỗi khi chạy ứng dụng nó chỉ khởi tạo đúng 1 lần new UserDeptService
 builder.Services.AddSingleton<UserDeptService>(s =>
     new UserDeptService(new MySqlConnection(conn)));
+builder.Services.AddSingleton<RoleDeptService>(s =>
+    new RoleDeptService(new MySqlConnection(conn)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

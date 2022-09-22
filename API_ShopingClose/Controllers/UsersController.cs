@@ -9,10 +9,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API_ShopingClose.Model;
+using API_ShopingClose.Helper;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/v1/users")]
+    [Route("api/v1")]
     [ApiController]
     public class UsersController : AuthController
     {
@@ -32,6 +33,7 @@ namespace API_ShopingClose.Controllers
         /// <returns>Danh sách tất cà các user</returns
         /// Created by: NVDIA(18/9/2022)
         [HttpGet]
+        [Route("users")]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(List<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
@@ -67,7 +69,7 @@ namespace API_ShopingClose.Controllers
         [HttpPost("login")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult Login([FromBody] UserLogin userLogin)
+        public IActionResult Login([FromBody]UserLogin userLogin)
         {
             if (!ModelState.IsValid)
             {
@@ -103,6 +105,7 @@ namespace API_ShopingClose.Controllers
         /// <returns>ID user đươc đăng ký thành công</returns>
         /// Created by: NVDIA(20/9/2022)
         [HttpPost]
+        [Route("users")]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Guid))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
@@ -113,7 +116,7 @@ namespace API_ShopingClose.Controllers
                 //Nếu thêm thành công thì trả về id của user ngoài ra thì thông báo lỗi
                 if (_userservice.InsertUser(user) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created, user.User_ID);
+                    return StatusCode(StatusCodes.Status201Created, user.UserID);
                 }
                 else
                 {
@@ -187,14 +190,14 @@ namespace API_ShopingClose.Controllers
 
             var claims = new[]
             {
-             new Claim(ClaimTypes.NameIdentifier,user.User_ID.ToString()),
-             new Claim(ClaimTypes.Name,user.User_Name),
+             new Claim(ClaimTypes.NameIdentifier,user.UserID.ToString()),
+             new Claim(ClaimTypes.Name,user.Username),
             };
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(double.Parse(AppSettings.Instance.ConnectionString)),
                 signingCredentials: credentials
             );
             return new JwtSecurityTokenHandler().WriteToken(token);

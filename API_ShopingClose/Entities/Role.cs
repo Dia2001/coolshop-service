@@ -8,12 +8,12 @@ namespace API_ShopingClose.Entities
         /// ID Role
         /// </summary>
         [Key]
-        public Guid Role_ID { get; set; }
+        public Guid RoleID { get; set; }
 
         /// <summary>
         /// Tên role
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public string Role_Name { get; set; }
+        public string RoleName { get; set; }
     }
 }

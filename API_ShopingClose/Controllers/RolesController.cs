@@ -10,10 +10,12 @@ namespace API_ShopingClose.Controllers
     public class RolesController : ControllerBase
     {
         RoleDeptService _roleservice;
-        public RolesController()
+
+        public RolesController(RoleDeptService roleservice)
         {
-            _roleservice = new RoleDeptService();
+            _roleservice = roleservice;
         }
+
         /// <summary>
         /// API lấy tất cả các role
         /// </summary>

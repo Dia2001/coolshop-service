@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_ShopingClose.Entities
 {
@@ -10,13 +11,13 @@ namespace API_ShopingClose.Entities
         /// ID user
         /// </summary>
         [Key]
-        public Guid User_ID { get; set; }
+        public Guid UserID { get; set; }
 
         /// <summary>
         /// Tên đăng nhập user
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public string User_Name { get; set; }
+        public string Username { get; set; }
 
         /// <summary>
         /// Mật khẩu user
@@ -27,7 +28,7 @@ namespace API_ShopingClose.Entities
         /// <summary>
         /// Số điện thoại
         /// </summary>
-        public string Phone_Number { get; set; }
+        public string PhoneNumber { get; set; }
 
         /// <summary>
         /// Địa chỉ
@@ -44,38 +45,38 @@ namespace API_ShopingClose.Entities
         /// Ngày đăng nhập gần nhất
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public DateTime Last_Operating_Time { get; set; }
+        public DateTime LastOperatingTime { get; set; }
 
         /// <summary>
         /// Ngày tạo
         /// </summary>
-        public DateTime Created_Date { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         /// <summary>
         /// Người tạo
         /// </summary>
-        public string Created_By { get; set; }
+        public string CreatedBy { get; set; }
 
         /// <summary>
         /// Ngày sửa gần nhất
         /// </summary>
-        public DateTime Modified_Date { get; set; }
+        public DateTime ModifiedDate { get; set; }
 
         /// <summary>
         /// Người sửa gần nhất
         /// </summary>
-        public string Modified_By { get; set; }
+        public string ModifiedBy { get; set; }
 
         /// <summary>
         /// Ngày xóa gần nhất
         /// </summary>
-        public DateTime Deleted_Date { get; set; }
+        public DateTime DeletedDate { get; set; }
 
         /// <summary>
         /// ID Role
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public Guid Role_ID { get; set; }
+        public Guid RoleID { get; set; }
 
         #endregion
     }
