@@ -1,39 +1,36 @@
 ﻿using API_ShopingClose.API_ShopingClose_DAO;
 using API_ShopingClose.Entities;
-using API_ShopingClose.Helper;
-using Dapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using MySqlConnector;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/roles")]
     [ApiController]
     public class RolesController : ControllerBase
     {
         RoleDeptService _roleservice;
-        public RolesController()
+
+        public RolesController(RoleDeptService roleservice)
         {
-            _roleservice =new RoleDeptService();
+            _roleservice = roleservice;
         }
+
         /// <summary>
         /// API lấy tất cả các role
         /// </summary>
         /// <returns>Danh sách tất cà các role</returns
         /// Created by: NVDIA(18/9/2022)
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Role))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllRoles()
         {
             try
             {
 
-                var roles=_roleservice.GetAllRole();
+                var roles = _roleservice.GetAllRole();
                 // Nếu roles khác null thì trả về toàn bộ các role ngoài ra thì báo lỗi
                 if (roles != null)
                 {

@@ -11,7 +11,7 @@
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), optional: false)
                 .Build();
-            _connectionString = configuration.GetSection("ConnectionStrings").GetSection("mysqlConnetionStrings").Value;
+            _connectionString = configuration.GetSection("Tokentimes").GetSection("Tokenlifetimes").Value;
         }
 
         public static AppSettings Instance

@@ -9,15 +9,16 @@ namespace API_ShopingClose.API_ShopingClose_DAO
     {
         private readonly MySqlConnection _conn;
 
-        private string _connectionString = AppSettings.Instance.ConnectionString;
-        public RoleDeptService()
+
+        public RoleDeptService(MySqlConnection conn)
         {
 
-            _conn = new MySqlConnection(_connectionString);
+            _conn = conn;
         }
+
         public IEnumerable<Role> GetAllRole()
         {
-            string getAllRolesCommand = "SELECT * FROM roles;";
+            string getAllRolesCommand = "SELECT * FROM role;";
             var result = this._conn.Query<Role>(getAllRolesCommand);
             return result;
         }
