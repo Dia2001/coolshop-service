@@ -49,6 +49,8 @@ builder.Services.AddSingleton<UserDeptService>(s =>
     new UserDeptService(new MySqlConnection(conn)));
 builder.Services.AddSingleton<RoleDeptService>(s =>
     new RoleDeptService(new MySqlConnection(conn)));
+builder.Services.AddSingleton<ProductDeptService>(s =>
+    new ProductDeptService(new MySqlConnection(conn)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
