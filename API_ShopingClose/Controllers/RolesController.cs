@@ -1,4 +1,4 @@
-﻿using API_ShopingClose.API_ShopingClose_DAO;
+﻿using API_ShopingClose.Service;
 using API_ShopingClose.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

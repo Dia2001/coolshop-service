@@ -1,14 +1,12 @@
 ﻿using API_ShopingClose.Entities;
-using API_ShopingClose.Helper;
 using Dapper;
 using MySqlConnector;
 
-namespace API_ShopingClose.API_ShopingClose_DAO
+namespace API_ShopingClose.Service
 {
     public class RoleDeptService
     {
         private readonly MySqlConnection _conn;
-
 
         public RoleDeptService(MySqlConnection conn)
         {

@@ -27,7 +27,7 @@ namespace API_ShopingClose.Entities
         /// Giá sản phẩm
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         /// Hình ảnh sản phẩm

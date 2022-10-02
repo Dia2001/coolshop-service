@@ -1,4 +1,4 @@
-﻿using API_ShopingClose.API_ShopingClose_DAO;
+﻿using API_ShopingClose.Service;
 using API_ShopingClose.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,7 +69,7 @@ namespace API_ShopingClose.Controllers
         [HttpPost("login")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult Login([FromBody]UserLogin userLogin)
+        public IActionResult Login([FromBody] UserLoginModel userLogin)
         {
             if (!ModelState.IsValid)
             {
@@ -78,7 +78,6 @@ namespace API_ShopingClose.Controllers
 
             try
             {
-
                 var users = _userservice.Login(userLogin.username, userLogin.password);
 
                 // Nếu user khác null thì trả về token đăng nhập ngoài ra báo lỗi

@@ -1,7 +1,6 @@
-
 namespace API_ShopingClose.Model
 {
-    public class UserLogin
+    public class UserLoginModel
     {
         public string username { get; set; }
 

@@ -1,161 +1,168 @@
-﻿using API_ShopingClose.API_ShopingClose_DAO;
+﻿using API_ShopingClose.Service;
 using API_ShopingClose.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MySqlConnector;
-using Swashbuckle.AspNetCore.Annotations;
+using API_ShopingClose.Model;
+using API_ShopingClose.Common;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
         ProductDeptService _productservice;
+        ProductInCategoryDeptService _productInCategoryService;
+        ProductDetailsDeptService _productDetailService;
 
-        public ProductsController(ProductDeptService productservice)
+        public ProductsController(ProductDeptService productservice,
+            ProductInCategoryDeptService productInCategoryService,
+            ProductDetailsDeptService productDetailsDeptService)
         {
             _productservice = productservice;
-        }
-        /// <summary>
-        /// API lấy tất cả các sản phẩm
-        /// </summary>
-        /// <returns>Danh sách tất cà các sản phẩm</returns
-        /// Created by: NVDIA(28/9/2022)
-        [HttpGet]
-        [SwaggerResponse(StatusCodes.Status200OK, type: typeof(List<Product>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllUsers()
-        {
-            try
-            {
-                var products = _productservice.GetAllProduct();
-
-                // Nếu products khác null thì trả về toàn bộ sản phẩm ngoài ra báo lỗi
-                if (products != null)
-                {
-                    return StatusCode(StatusCodes.Status200OK, products);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
-            }
+            _productInCategoryService = productInCategoryService;
+            _productDetailService = productDetailsDeptService;
         }
 
-        /// <summary>
-        /// API thêm sản phẩm
-        /// </summary>
-        /// <returns>ID  sản phẩm đươc thêm thành công</returns>
-        /// Created by: NVDIA(28/9/2022)
         [HttpPost]
-        [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Guid))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult InsertProduct([FromBody]Product product)
+        public async Task<IActionResult> createProduct([FromForm] ProductModel productModel, [FromForm] IFormFile? file)
         {
-            try
+            dynamic response = new
             {
-                //Nếu thêm thành công thì trả về id của product ngoài ra thì thông báo lỗi
-                if (_productservice.InsertProduct(product) == true)
-                {
-                    return StatusCode(StatusCodes.Status201Created, product.ProductID);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
-                }
-            }
-            catch (MySqlException mySqlException)
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            Product product = new Product();
+            if (file != null)
             {
-                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                if (!Validate.ValidateImageFileNameUpload(file.ContentType))
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                    response = new
+                    {
+                        status = 400,
+                        message = "File không đúng định dạng!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+
+                if (file.Length > Constants.MAX_FILE_IMAGE_UPLOAD)
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Kích thước file không được vượt quá 4Mb!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+                product.ProductName = productModel.name;
+                product.Image = await UploadFile(file);
+                product.Slug = await getSlug(productModel.slug, productModel.name);
+                product.Description = productModel.description;
+                product.Price = productModel.price;
+                product.BrandID = productModel.brandId;
+                product.Rate = 0;
+
+                try
+                {
+
+                    // Insert du lieu vao bang prooduct
+                    var insert = _productservice.InsertProduct(product);
+                    if (insert != null)
+                    {
+                        // Tao moi entity productInCategory chua thong tin productId va categoryId
+                        ProductInCategory productInCategory = new ProductInCategory();
+                        productInCategory.productId = insert;
+
+                        // Lap qua danh sach categoryId roi them data vao
+                        foreach (Guid categoryId in productModel.categories)
+                        {
+                            productInCategory.categoryId = categoryId;
+                            await _productInCategoryService.InsertPrductInCategory(productInCategory);
+                        }
+
+                        ProductDetails productDetails = new ProductDetails();
+                        productDetails.quantity = 0;
+                        productDetails.productId = insert;
+
+                        // Voi moi mot colorId va sizeId thi chen du lieu vao
+                        foreach (Guid sizeId in productModel.detail.sizes)
+                        {
+                            foreach (Guid colorId in productModel.detail.colors)
+                            {
+                                productDetails.sizeId = sizeId;
+                                productDetails.colorId = colorId;
+                                await _productDetailService.InsertProductDetails(productDetails);
+                            }
+                        }
+
+                        response = new
+                        {
+                            status = 201,
+                            message = "Tạo sản phẩm thành công!",
+                            data = insert
+                        };
+                        return StatusCode(StatusCodes.Status201Created, response);
+                    }
+                    else
+                    {
+                        response = new
+                        {
+                            status = 400,
+                            message = "Có lỗi xảy ra trong quá trình tạo dữ liệu!",
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
             }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
-            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        /// <summary>
-        /// API sửa một sản phẩm
-        /// </summary>
-        /// <param name="product">Đối tượng sản phẩm cần sửa</param>
-        /// <param name="productID">ID sản phẩm muốn sửa</param>
-        /// <returns>ID sản phẩm cần sửa</returns>
-        /// Create by: NVDIA (28/9/2022)
-        [HttpPut]
-        [Route("{productID}")]
-        public IActionResult UpdateProduct([FromBody] Product product, [FromRoute] Guid productID)
+        private async Task<string> getSlug(string? slugParam, string productName)
         {
-            try
-            {
+            string slug;
 
-                //Nếu sửa thành công thì trả về id của product ngoài ra thì thông báo lỗi
-                if (_productservice.UpdateProduct(product,productID) == true)
-                {
-                    // Trả về dữ liệu cho client
-                    return StatusCode(StatusCodes.Status200OK, productID);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
-                }
-
-            }
-            catch (MySqlException mySqlException)
+            if (slugParam != null)
             {
-                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
-                }
-
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                slug = slugParam;
             }
-            catch (Exception exception)
+            else
             {
-                Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                slug = Utils.getSlugFromName(productName);
             }
+
+            int indexSlug = 1;
+            string slugTmp = slug;
+            while (await _productservice.checkSlugEmpty(slugTmp))
+            {
+                slugTmp = slug + "-" + indexSlug;
+                indexSlug++;
+            }
+
+            return slugTmp;
         }
 
-        /// <summary>
-        /// API xóa sản phẩm
-        /// </summary>
-        /// <param name="productID">ID của sản phẩm muốn xóa</param>
-        /// <returns>ID sản phẩm cần xóa</returns>
-        /// Create by: NVDIA (28/9/2022)
-        [HttpDelete]
-        [Route("{productID}")]
-        public IActionResult DeleteProduct([FromRoute] Guid productID)
+        private async Task<string> UploadFile(IFormFile file)
         {
             try
             {
-                //Nếu xóa thành công thì trả về id của product ngoài ra thì thông báo lỗi
-                if (_productservice.DeleteProduct(productID) == true)
-                {
-                    // Trả về dữ liệu cho client
-                    return StatusCode(StatusCodes.Status200OK,productID);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
-                }
+                string fileName = DateTime.Now.ToString("yyyyMMdd-HHmmss") + file.FileName;
+                string path = Constants.ROOT_PATH_IMAGE_PRODUCT + fileName;
+
+                using var stream = new FileStream(path, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                Console.WriteLine(ex.Message);
+                return "";
             }
         }
     }
