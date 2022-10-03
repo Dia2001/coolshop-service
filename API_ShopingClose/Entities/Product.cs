@@ -39,7 +39,7 @@ namespace API_ShopingClose.Entities
         /// Đánh giá sản phẩm
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public Rate Rate { get; set; }
+        public float Rate { get; set; }
 
         /// <summary>
         /// Link SEO

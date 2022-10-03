@@ -6,7 +6,7 @@ using API_ShopingClose.Common;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -24,6 +24,7 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpPost]
+        [Route("products")]
         public async Task<IActionResult> createProduct([FromForm] ProductModel productModel, [FromForm] IFormFile? file)
         {
             dynamic response = new
@@ -32,7 +33,7 @@ namespace API_ShopingClose.Controllers
                 message = "Call servser faile!",
             };
 
-            Product product = new Product();
+            Product product = ConvertMethod.convertProductModleToProduct(productModel);
             if (file != null)
             {
                 if (!Validate.ValidateImageFileNameUpload(file.ContentType))
@@ -55,20 +56,19 @@ namespace API_ShopingClose.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
 
-                product.ProductName = productModel.name;
                 product.Image = await UploadFile(file);
-                product.Slug = await getSlug(productModel.slug, productModel.name);
-                product.Description = productModel.description;
-                product.Price = productModel.price;
-                product.BrandID = productModel.brandId;
-                product.Rate = 0;
+            }
 
-                try
+            product.Slug = await getSlug(productModel.slug, productModel.name);
+            product.Rate = 0;
+
+            try
+            {
+                // Insert du lieu vao bang prooduct
+                var insert = _productservice.InsertProduct(product);
+                if (insert != null)
                 {
-
-                    // Insert du lieu vao bang prooduct
-                    var insert = _productservice.InsertProduct(product);
-                    if (insert != null)
+                    if (productModel.categories != null)
                     {
                         // Tao moi entity productInCategory chua thong tin productId va categoryId
                         ProductInCategory productInCategory = new ProductInCategory();
@@ -80,7 +80,10 @@ namespace API_ShopingClose.Controllers
                             productInCategory.categoryId = categoryId;
                             await _productInCategoryService.InsertPrductInCategory(productInCategory);
                         }
+                    }
 
+                    if (productModel.detail != null && productModel.detail.sizes != null)
+                    {
                         ProductDetails productDetails = new ProductDetails();
                         productDetails.quantity = 0;
                         productDetails.productId = insert;
@@ -95,32 +98,552 @@ namespace API_ShopingClose.Controllers
                                 await _productDetailService.InsertProductDetails(productDetails);
                             }
                         }
-
-                        response = new
-                        {
-                            status = 201,
-                            message = "Tạo sản phẩm thành công!",
-                            data = insert
-                        };
-                        return StatusCode(StatusCodes.Status201Created, response);
                     }
-                    else
+
+                    response = new
+                    {
+                        status = 201,
+                        message = "Tạo sản phẩm thành công!",
+                        data = insert
+                    };
+                    return StatusCode(StatusCodes.Status201Created, response);
+                }
+                else
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Có lỗi xảy ra trong quá trình tạo dữ liệu!",
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+
+        [HttpPut]
+        [Route("products/{productId}")]
+        public async Task<IActionResult> updateProduct([FromRoute] Guid productId,
+            [FromForm] IFormFile? file, [FromForm] ProductModel productModel)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid || !productId.Equals(productModel.productId))
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                Product product = ConvertMethod.convertProductModleToProduct(productModel);
+
+                if (file != null)
+                {
+                    if (!Validate.ValidateImageFileNameUpload(file.ContentType))
                     {
                         response = new
                         {
                             status = 400,
-                            message = "Có lỗi xảy ra trong quá trình tạo dữ liệu!",
+                            message = "File không đúng định dạng!"
                         };
+                        return StatusCode(StatusCodes.Status400BadRequest, response);
                     }
+
+                    if (file.Length > Constants.MAX_FILE_IMAGE_UPLOAD)
+                    {
+                        response = new
+                        {
+                            status = 400,
+                            message = "Kích thước file không được vượt quá 4Mb!"
+                        };
+                        return StatusCode(StatusCodes.Status400BadRequest, response);
+                    }
+
+                    // Xoa file anh goc (Tam thoi an di do may bi loi khong cho xoa)
+                    // System.IO.File.Delete(Constants.ROOT_PATH_IMAGE_PRODUCT + productModel.image);
+
+                    product.Image = await UploadFile(file);
+
+                }
+
+                if (productModel.slug == null || productModel.slug.Equals(""))
+                {
+                    product.Slug = await getSlug(null, product.ProductName);
+                }
+                else
+                {
+                    product.Slug = await getSlug(null, productModel.slug);
+                }
+
+                if (await _productservice.UpdateProduct(product, productId))
+                {
+                    response = new
+                    {
+                        status = 200,
+                        message = "Cập nhật sản phẩm thành công!"
+                    };
+
+                    return StatusCode(StatusCodes.Status200OK, response);
+
+                }
+                else
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Cập nhật sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/quantity")]
+        public async Task<IActionResult> addQuantityBySizeAndColor([FromBody] ProductDetailModel productDetailModel)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                if (await _productDetailService.updateQuantityByProductIdAndSizeIdAndColorId(
+                      productDetailModel.productId, productDetailModel.sizeId, productDetailModel.colorId,
+                      productDetailModel.quantity))
+                {
+                    response = new
+                    {
+                        status = 200,
+                        message = "Thêm số lượng sản phẩm thành công!"
+                    };
+                    return StatusCode(StatusCodes.Status200OK, response);
+                }
+                else
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Thêm số lượng sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/size")]
+        public async Task<IActionResult> addSize([FromBody] AddSizeToProductModel addSizeToProductModel)
+        {
+
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+
+                List<ProductDetails> productDetails = (await
+                  _productDetailService.getAllProductDetailByProductId(addSizeToProductModel.productId)).ToList();
+
+                List<Guid> listColorId = new List<Guid>();
+
+                foreach (var productDT in productDetails)
+                {
+                    bool isNotEmpty = false;
+                    foreach (var colorId in listColorId)
+                    {
+                        if (productDT.colorId.Equals(colorId))
+                        {
+                            isNotEmpty = true;
+                            break;
+                        }
+                    }
+                    if (!isNotEmpty)
+                    {
+                        listColorId.Add(productDT.colorId);
+                    }
+                }
+
+                ProductDetails productDetail = new ProductDetails();
+                productDetail.productId = addSizeToProductModel.productId;
+                productDetail.sizeId = addSizeToProductModel.sizeId;
+
+                foreach (var colorId in listColorId)
+                {
+                    productDetail.colorId = colorId;
+                    try
+                    {
+                        await _productDetailService.InsertProductDetails(productDetail);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        response = new
+                        {
+                            status = 400,
+                            message = "Thêm size cho sản phẩm thất bại!"
+                        };
+                        return StatusCode(StatusCodes.Status400BadRequest, response);
+                    }
+                }
+
+                response = new
+                {
+                    status = 200,
+                    message = "Thêm size cho sản phẩm thành công!"
+                };
+                return StatusCode(StatusCodes.Status200OK, response);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/size/delete")]
+        public async Task<IActionResult> deleteSize([FromBody] AddSizeToProductModel addSizeToProductModel)
+        {
+
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                try
+                {
+                    await _productDetailService.deleteAllProductDetailByProductIdAndSizeId(
+                        addSizeToProductModel.productId, addSizeToProductModel.sizeId);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    response = new
+                    {
+                        status = 400,
+                        message = "Xóa size cho sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+                response = new
+                {
+                    status = 200,
+                    message = "Xóa size cho sản phẩm thành công!"
+                };
+                return StatusCode(StatusCodes.Status200OK, response);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/color")]
+        public async Task<IActionResult> addColor([FromBody] AddColorToProductModel addColorToProductModel)
+        {
+
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+
+                List<ProductDetails> productDetails = (await
+                  _productDetailService.getAllProductDetailByProductId(addColorToProductModel.productId)).ToList();
+
+                List<Guid> listSizeId = new List<Guid>();
+
+                foreach (var productDT in productDetails)
+                {
+                    bool isNotEmpty = false;
+                    foreach (var sizeId in listSizeId)
+                    {
+                        if (productDT.sizeId.Equals(sizeId))
+                        {
+                            isNotEmpty = true;
+                            break;
+                        }
+                    }
+                    if (!isNotEmpty)
+                    {
+                        listSizeId.Add(productDT.sizeId);
+                    }
+                }
+
+                ProductDetails productDetail = new ProductDetails();
+                productDetail.productId = addColorToProductModel.productId;
+                productDetail.colorId = addColorToProductModel.colorId;
+
+                foreach (var sizeId in listSizeId)
+                {
+                    productDetail.sizeId = sizeId;
+                    try
+                    {
+                        await _productDetailService.InsertProductDetails(productDetail);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        response = new
+                        {
+                            status = 400,
+                            message = "Thêm color cho sản phẩm thất bại!"
+                        };
+                        return StatusCode(StatusCodes.Status400BadRequest, response);
+                    }
+                }
+
+                response = new
+                {
+                    status = 200,
+                    message = "Thêm color cho sản phẩm thành công!"
+                };
+                return StatusCode(StatusCodes.Status200OK, response);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/color/delete")]
+        public async Task<IActionResult> deleteColor([FromBody] AddColorToProductModel addColorToProductModel)
+        {
+
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                try
+                {
+                    await _productDetailService.deleteAllProductDetailByProductIdAndColorId(
+                        addColorToProductModel.productId, addColorToProductModel.colorId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    response = new
+                    {
+                        status = 400,
+                        message = "Xóa color cho sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+                response = new
+                {
+                    status = 200,
+                    message = "Xóa color cho sản phẩm thành công!"
+                };
+                return StatusCode(StatusCodes.Status200OK, response);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpPost]
+        [Route("products/categories")]
+        public async Task<IActionResult> createProductInCategory([FromBody] ProductInCategoryModel productInCategoryModel)
+        {
+
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                if (await _productInCategoryService.InsertPrductInCategory(
+                    ConvertMethod.convertProductInCategoryModelToProductInCategory(productInCategoryModel)))
+                {
+                    response = new
+                    {
+                        status = 201,
+                        message = "Thêm danh mục cho sản phẩm thành công!"
+                    };
+                    return StatusCode(StatusCodes.Status201Created, response);
+                }
+                else
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Thêm danh mục cho sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
 
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
 
-            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        [HttpPost]
+        [Route("products/categories/delete")]
+        public async Task<IActionResult> deleteProductInCategory([FromBody] ProductInCategoryModel productInCategoryModel)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                if (await _productInCategoryService.deleteProductInCategory(
+                    ConvertMethod.convertProductInCategoryModelToProductInCategory(productInCategoryModel)))
+                {
+                    response = new
+                    {
+                        status = 200,
+                        message = "Xóa danh mục cho sản phẩm thàn công!"
+                    };
+                    return StatusCode(StatusCodes.Status200OK, response);
+                }
+                else
+                {
+                    response = new
+                    {
+                        status = 400,
+                        message = "Xóa danh mục cho sản phẩm thất bại!"
+                    };
+                    return StatusCode(StatusCodes.Status400BadRequest, response);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
         }
 
         private async Task<string> getSlug(string? slugParam, string productName)

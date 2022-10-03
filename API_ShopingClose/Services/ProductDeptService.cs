@@ -44,7 +44,7 @@ namespace API_ShopingClose.Service
             return null;
         }
 
-        public bool UpdateProduct(Product product, Guid productID)
+        public async Task<bool> UpdateProduct(Product product, Guid productID)
         {
             bool b = false;
             string updateProductCommand = "UPDATE product " +
@@ -66,7 +66,7 @@ namespace API_ShopingClose.Service
             parameters.Add("@Rate", product.Rate);
             parameters.Add("@Slug", product.Slug);
             parameters.Add("@Description", product.Description);
-            b = this._conn.Execute(updateProductCommand, parameters) > 0;
+            b = await this._conn.ExecuteAsync(updateProductCommand, parameters) > 0;
 
             return b;
         }

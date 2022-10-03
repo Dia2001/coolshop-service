@@ -27,4 +27,17 @@ public class ProductInCategoryDeptService
 
         return await _conn.ExecuteAsync(sql, parameters) > 0;
     }
+
+    public async Task<bool> deleteProductInCategory(ProductInCategory productInCategory)
+    {
+        string sql = "DELETE FROM productincategory where ProductID = @ProductID and CategoryID = @CategoryID";
+
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@ProductID", productInCategory.productId);
+        parameters.Add("@CategoryID", productInCategory.categoryId);
+
+        return await _conn.ExecuteAsync(sql, parameters) > 0;
+
+    }
 }
