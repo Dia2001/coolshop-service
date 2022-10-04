@@ -30,11 +30,10 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-                List<Product> allProducts = (await
-                  _productservice.getAllProducts()).ToList();
-
+                List<Product> allProducts = (await _productservice.getAllProducts()).ToList();
                 List<ProductModel> products = new List<ProductModel>();
-                foreach(var oneproduct in allProducts)
+
+                foreach (var oneproduct in allProducts)
                 {
                     ProductModel product = new ProductModel();
                     product.productId = oneproduct.ProductID;
@@ -45,72 +44,99 @@ namespace API_ShopingClose.Controllers
                     product.image = oneproduct.Image;
                     product.brandId = oneproduct.BrandID;
                     product.rate = oneproduct.Rate;
+
                     List<ProductInCategory> allCategoryProducts = (await
                   _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID)).ToList();
-                    Guid[] idCategoryInProduct =new Guid[allCategoryProducts.Count()];
+
+                    Guid[] listIdCategoryInProduct = new Guid[allCategoryProducts.Count()];
                     int i = 0;
                     foreach (var oneproductincategory in allCategoryProducts)
                     {
-                        idCategoryInProduct[i]=oneproductincategory.categoryId;
+                        listIdCategoryInProduct[i] = oneproductincategory.categoryId;
                         i++;
                     }
-                    product.categories = idCategoryInProduct;
+                    product.categories = listIdCategoryInProduct;
 
-                    List<ProductDetails> allProductDetails = (await 
+                    List<ProductDetails> allProductDetails = (await
                         _productDetailService.getAllProductDetailByProductId(oneproduct.ProductID)).ToList();
 
-                    Guid[] listSizeId= new Guid[allCategoryProducts.Count()];
-                    Guid[] listColorId = new Guid[allCategoryProducts.Count()];
+                    List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
+                    List<ProductDetails> listColorInProduct = new List<ProductDetails>();
 
-                    int colorI=0;
-                    int sizeI = 0;
                     int totalQuantity = 0;
-                    foreach (var oneproductdetail in allProductDetails)
+
+                    if (allProductDetails.Count() > 0)
                     {
-                        totalQuantity++;
-                        bool isNotEmptyColor = false;
-                        bool isNotEmptySize = false;
+                        int colorI = 0;
+                        int sizeI = 0;
+                        foreach (var oneproductdetail in allProductDetails)
+                        {
+                            totalQuantity += oneproductdetail.quantity;
 
-                        foreach (var colorId in listColorId)
-                        {
-                            if (oneproductdetail.colorId.Equals(colorId))
-                            {
-                                isNotEmptyColor = true;
-                                break;
-                            }
-                        }
-                        if (!isNotEmptyColor)
-                        {                            
-                            listColorId[colorI] = oneproductdetail.colorId;
-                            colorI++;
-                        }
+                            bool isNotEmptyColor = false;
+                            bool isNotEmptySize = false;
 
-                        foreach (var sizeId in listSizeId)
-                        {
-                            if (oneproductdetail.sizeId.Equals(sizeId))
+                            foreach (var productDetailTmp in listSizeInProduct)
                             {
-                                isNotEmptySize= true;
-                                break;
+                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                {
+                                    isNotEmptyColor = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!isNotEmptySize)
-                        {
-                            listSizeId[sizeI] = oneproductdetail.sizeId;
-                            sizeI++;
+                            if (!isNotEmptyColor)
+                            {
+                                listSizeInProduct.Add(oneproductdetail);
+                                colorI++;
+                            }
+
+                            foreach (var productDetailTmp in listColorInProduct)
+                            {
+                                if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
+                                {
+                                    isNotEmptySize = true;
+                                    break;
+                                }
+                            }
+                            if (!isNotEmptySize)
+                            {
+                                listColorInProduct.Add(oneproductdetail);
+                                sizeI++;
+                            }
                         }
                     }
+
                     Detail detailp = new Detail();
+
+                    Guid[] listSizeId = new Guid[listSizeInProduct.Count()];
+                    Guid[] listColorId = new Guid[listColorInProduct.Count()];
+
+                    int sizeCount = 0;
+                    int colorCount = 0;
+
+                    foreach (var proudctSize in listSizeInProduct)
+                    {
+                        listSizeId[sizeCount] = proudctSize.sizeId;
+                        sizeCount++;
+                    }
+
+                    foreach (var proudctColor in listColorInProduct)
+                    {
+                        listColorId[colorCount] = proudctColor.sizeId;
+                        colorCount++;
+                    }
+
                     detailp.sizes = listSizeId;
-                    detailp.colors = listSizeId;
+                    detailp.colors = listColorId;
                     product.detail = detailp;
                     product.totalQuantity = totalQuantity;
                     product.rate = 0;
                     products.Add(product);
                 }
-                return StatusCode(StatusCodes.Status200OK,products);
+                return StatusCode(StatusCodes.Status200OK, products);
 
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 dynamic response = new
                 {
@@ -119,7 +145,7 @@ namespace API_ShopingClose.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
-            
+
         }
 
 
