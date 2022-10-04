@@ -40,4 +40,13 @@ public class ProductInCategoryDeptService
         return await _conn.ExecuteAsync(sql, parameters) > 0;
 
     }
+
+    public async Task<IEnumerable<ProductInCategory>> getProductInCategoryByProductID(Guid productID)
+    {
+        string sql = "SELECT * FROM productincategory where ProductID=@ProductID";
+        var parameters = new DynamicParameters();
+        parameters.Add("@ProductID",productID);
+
+        return await _conn.QueryAsync<ProductInCategory>(sql,parameters);
+    }
 }

@@ -93,5 +93,11 @@ namespace API_ShopingClose.Service
             var result = await this._conn.QueryAsync<Product>(sql, parameters);
             return result.ToArray().Length > 0;
         }
+
+        public async Task<IEnumerable<Product>> getAllProducts()
+        {
+            string sql = "select * from product";
+            return await _conn.QueryAsync<Product>(sql); 
+        }
     }
 }

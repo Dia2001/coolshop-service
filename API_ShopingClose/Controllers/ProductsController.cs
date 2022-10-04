@@ -23,6 +23,107 @@ namespace API_ShopingClose.Controllers
             _productDetailService = productDetailsDeptService;
         }
 
+        // Lấy tất cả các sản phẩm
+        [HttpGet]
+        [Route("products")]
+        public async Task<IActionResult> getAllProducts()
+        {
+            try
+            {
+                List<Product> allProducts = (await
+                  _productservice.getAllProducts()).ToList();
+
+                List<ProductModel> products = new List<ProductModel>();
+                foreach(var oneproduct in allProducts)
+                {
+                    ProductModel product = new ProductModel();
+                    product.productId = oneproduct.ProductID;
+                    product.name = oneproduct.ProductName;
+                    product.price = oneproduct.Price;
+                    product.description = oneproduct.Description;
+                    product.slug = oneproduct.Slug;
+                    product.image = oneproduct.Image;
+                    product.brandId = oneproduct.BrandID;
+                    product.rate = oneproduct.Rate;
+                    List<ProductInCategory> allCategoryProducts = (await
+                  _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID)).ToList();
+                    Guid[] idCategoryInProduct =new Guid[allCategoryProducts.Count()];
+                    int i = 0;
+                    foreach (var oneproductincategory in allCategoryProducts)
+                    {
+                        idCategoryInProduct[i]=oneproductincategory.categoryId;
+                        i++;
+                    }
+                    product.categories = idCategoryInProduct;
+
+                    List<ProductDetails> allProductDetails = (await 
+                        _productDetailService.getAllProductDetailByProductId(oneproduct.ProductID)).ToList();
+
+                    Guid[] listSizeId= new Guid[allCategoryProducts.Count()];
+                    Guid[] listColorId = new Guid[allCategoryProducts.Count()];
+
+                    int colorI=0;
+                    int sizeI = 0;
+                    int totalQuantity = 0;
+                    foreach (var oneproductdetail in allProductDetails)
+                    {
+                        totalQuantity++;
+                        bool isNotEmptyColor = false;
+                        bool isNotEmptySize = false;
+
+                        foreach (var colorId in listColorId)
+                        {
+                            if (oneproductdetail.colorId.Equals(colorId))
+                            {
+                                isNotEmptyColor = true;
+                                break;
+                            }
+                        }
+                        if (!isNotEmptyColor)
+                        {                            
+                            listColorId[colorI] = oneproductdetail.colorId;
+                            colorI++;
+                        }
+
+                        foreach (var sizeId in listSizeId)
+                        {
+                            if (oneproductdetail.sizeId.Equals(sizeId))
+                            {
+                                isNotEmptySize= true;
+                                break;
+                            }
+                        }
+                        if (!isNotEmptySize)
+                        {
+                            listSizeId[sizeI] = oneproductdetail.sizeId;
+                            sizeI++;
+                        }
+                    }
+                    Detail detailp = new Detail();
+                    detailp.sizes = listSizeId;
+                    detailp.colors = listSizeId;
+                    product.detail = detailp;
+                    product.totalQuantity = totalQuantity;
+                    product.rate = 0;
+                    products.Add(product);
+                }
+                return StatusCode(StatusCodes.Status200OK,products);
+
+            }
+            catch(Exception ex)
+            {
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            
+        }
+
+
+
         [HttpPost]
         [Route("products")]
         public async Task<IActionResult> createProduct([FromForm] ProductModel productModel, [FromForm] IFormFile? file)
