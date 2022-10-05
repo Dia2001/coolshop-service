@@ -14,12 +14,6 @@ namespace API_ShopingClose.Service
             _conn = conn;
         }
 
-        public IEnumerable<Product> GetAllProduct()
-        {
-            string getAllProductsCommand = "SELECT * FROM product;";
-            var result = this._conn.Query<Product>(getAllProductsCommand);
-            return result;
-        }
 
         public Guid? InsertProduct(Product product)
         {
@@ -98,6 +92,17 @@ namespace API_ShopingClose.Service
         {
             string sql = "select * from product";
             return await _conn.QueryAsync<Product>(sql); 
+        }
+
+        public async Task<Product> getOneProduct(Guid? productId)
+        {
+            string sql = "select * from product where ProductID=@ProductID";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProductID",productId);
+
+            var result = await this._conn.QueryAsync<Product>(sql, parameters);
+            return result.FirstOrDefault();
         }
     }
 }
