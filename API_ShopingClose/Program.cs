@@ -60,6 +60,22 @@ builder.Services.AddSingleton<ProductInCategoryDeptService>(s =>
 builder.Services.AddSingleton<ProductDetailsDeptService>(s =>
     new ProductDetailsDeptService(new MySqlConnection(conn)));
 
+builder.Services.AddSingleton<BrandDeptService>(s =>
+    new BrandDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<CategoryDeptService>(s =>
+    new CategoryDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<SizeDeptService>(s =>
+    new SizeDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<ColorDeptService>(s =>
+    new ColorDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<GalleryDeptService>(s =>
+    new GalleryDeptService(new MySqlConnection(conn)));
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

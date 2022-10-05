@@ -148,7 +148,127 @@ namespace API_ShopingClose.Controllers
 
         }
 
+        // Lấy thông tin một sản phẩm sản phẩm
+        [HttpGet]
+        [Route("products/{productId}")]
+        public async Task<IActionResult> getOneProducts([FromRoute] Guid productId)
+        {
+            try
+            {
 
+                    Product infoproducts = await _productservice.getOneProduct(productId);
+
+                    ProductModel product = new ProductModel();
+                    product.productId = infoproducts.ProductID;
+                    product.name = infoproducts.ProductName;
+                    product.price = infoproducts.Price;
+                    product.description =infoproducts.Description;
+                    product.slug = infoproducts.Slug;
+                    product.image = infoproducts.Image;
+                    product.brandId = infoproducts.BrandID;
+                    product.rate = infoproducts.Rate;
+
+                    List<ProductInCategory> allCategoryProducts = (await
+                  _productInCategoryService.getProductInCategoryByProductID(infoproducts.ProductID)).ToList();
+
+                    Guid[] listIdCategoryInProduct = new Guid[allCategoryProducts.Count()];
+                    int i = 0;
+                    foreach (var oneproductincategory in allCategoryProducts)
+                    {
+                        listIdCategoryInProduct[i] = oneproductincategory.categoryId;
+                        i++;
+                    }
+                    product.categories = listIdCategoryInProduct;
+
+                    List<ProductDetails> allProductDetails = (await
+                        _productDetailService.getAllProductDetailByProductId(infoproducts.ProductID)).ToList();
+
+                    List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
+                    List<ProductDetails> listColorInProduct = new List<ProductDetails>();
+
+                    int totalQuantity = 0;
+
+                    if (allProductDetails.Count() > 0)
+                    {
+                        int colorI = 0;
+                        int sizeI = 0;
+                        foreach (var oneproductdetail in allProductDetails)
+                        {
+                            totalQuantity += oneproductdetail.quantity;
+
+                            bool isNotEmptyColor = false;
+                            bool isNotEmptySize = false;
+
+                            foreach (var productDetailTmp in listSizeInProduct)
+                            {
+                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                {
+                                    isNotEmptyColor = true;
+                                    break;
+                                }
+                            }
+                            if (!isNotEmptyColor)
+                            {
+                                listSizeInProduct.Add(oneproductdetail);
+                                colorI++;
+                            }
+
+                            foreach (var productDetailTmp in listColorInProduct)
+                            {
+                                if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
+                                {
+                                    isNotEmptySize = true;
+                                    break;
+                                }
+                            }
+                            if (!isNotEmptySize)
+                            {
+                                listColorInProduct.Add(oneproductdetail);
+                                sizeI++;
+                            }
+                        }
+                    }
+
+                    Detail detailp = new Detail();
+
+                    Guid[] listSizeId = new Guid[listSizeInProduct.Count()];
+                    Guid[] listColorId = new Guid[listColorInProduct.Count()];
+
+                    int sizeCount = 0;
+                    int colorCount = 0;
+
+                    foreach (var proudctSize in listSizeInProduct)
+                    {
+                        listSizeId[sizeCount] = proudctSize.sizeId;
+                        sizeCount++;
+                    }
+
+                    foreach (var proudctColor in listColorInProduct)
+                    {
+                        listColorId[colorCount] = proudctColor.sizeId;
+                        colorCount++;
+                    }
+
+                    detailp.sizes = listSizeId;
+                    detailp.colors = listColorId;
+                    product.detail = detailp;
+                    product.totalQuantity = totalQuantity;
+                    product.rate = 0;
+
+                return StatusCode(StatusCodes.Status200OK, product);
+
+            }
+            catch (Exception)
+            {
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+        }
 
         [HttpPost]
         [Route("products")]
