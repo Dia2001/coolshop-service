@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using API_ShopingClose.API_ShopingClose_DAO;
+using API_ShopingClose.Service;
 using MySqlConnector;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -47,8 +47,34 @@ string conn = builder.Configuration.GetConnectionString("mysqlConnetionStrings")
 // Mỗi khi chạy ứng dụng nó chỉ khởi tạo đúng 1 lần new UserDeptService
 builder.Services.AddSingleton<UserDeptService>(s =>
     new UserDeptService(new MySqlConnection(conn)));
+
 builder.Services.AddSingleton<RoleDeptService>(s =>
     new RoleDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<ProductDeptService>(s =>
+    new ProductDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<ProductInCategoryDeptService>(s =>
+    new ProductInCategoryDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<ProductDetailsDeptService>(s =>
+    new ProductDetailsDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<BrandDeptService>(s =>
+    new BrandDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<CategoryDeptService>(s =>
+    new CategoryDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<SizeDeptService>(s =>
+    new SizeDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<ColorDeptService>(s =>
+    new ColorDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<GalleryDeptService>(s =>
+    new GalleryDeptService(new MySqlConnection(conn)));
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -65,6 +91,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors(MyAllowSpecificOrigins);
 //
 app.UseHttpsRedirection();
+
+// Public thư mục wwwroot
+app.UseStaticFiles();
 //
 app.UseAuthentication();
 app.UseAuthorization();

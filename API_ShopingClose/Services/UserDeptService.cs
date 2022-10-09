@@ -1,16 +1,14 @@
 ﻿using API_ShopingClose.Entities;
-using API_ShopingClose.Helper;
 using Dapper;
 using MySqlConnector;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace API_ShopingClose.API_ShopingClose_DAO
+namespace API_ShopingClose.Service
 {
     public class UserDeptService
     {
         private readonly MySqlConnection _conn;
-
 
         public UserDeptService(MySqlConnection conn)
         {
