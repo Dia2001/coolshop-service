@@ -57,7 +57,7 @@ public class ProductDetailsDeptService
     }
 
     public async Task<bool> updateQuantityByProductIdAndSizeIdAndColorId(
-        Guid productId, Guid sizeId, Guid colorId, int quantity)
+        Guid productId, string sizeId, string colorId, int quantity)
     {
         string sql = "UPDATE productdetails set quantity = quantity + @quantity where ProductID = @ProductID and ColorID = @ColorID and SizeID = @SizeID";
 
@@ -71,7 +71,7 @@ public class ProductDetailsDeptService
         return await _conn.ExecuteAsync(sql, parameters) > 0;
     }
 
-    public async Task<bool> deleteAllProductDetailByProductIdAndSizeId(Guid productId, Guid sizeId)
+    public async Task<bool> deleteAllProductDetailByProductIdAndSizeId(Guid productId, string sizeId)
     {
         string sql = "DELETE from productdetails where ProductID = @ProductID and SizeID = @SizeID";
 
@@ -83,7 +83,7 @@ public class ProductDetailsDeptService
         return await _conn.ExecuteAsync(sql, parameters) > 0;
     }
 
-    public async Task<bool> deleteAllProductDetailByProductIdAndColorId(Guid productId, Guid colorId)
+    public async Task<bool> deleteAllProductDetailByProductIdAndColorId(Guid productId, string colorId)
     {
         string sql = "DELETE from productdetails where ProductID = @ProductID and ColorID = @ColorID";
 

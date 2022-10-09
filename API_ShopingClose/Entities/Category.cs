@@ -4,7 +4,7 @@ namespace API_ShopingClose.Entities
 {
     public class Category
     {
-        public Guid CategoryID { get; set; }
+        public long CategoryID { get; set; }
 
         [Required]
         public string? CategoryName { get; set; }

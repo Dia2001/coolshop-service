@@ -4,7 +4,7 @@ namespace API_ShopingClose.Entities
 {
     public class Galleries
     {
-        public Guid GalleryID { get; set; }
+        public long GalleryID { get; set; }
 
         [Required]
         public Guid ProductID { get; set; }

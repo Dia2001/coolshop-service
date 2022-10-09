@@ -4,7 +4,7 @@ namespace API_ShopingClose.Entities
 {
     public class Size
     {
-        public Guid SizeID { get; set; }
+        public string SizeID { get; set; }
 
         [Required]
         public string? SizeName { get; set; }

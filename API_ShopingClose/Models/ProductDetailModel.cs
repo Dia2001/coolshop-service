@@ -6,9 +6,9 @@ public class ProductDetailModel
 
     public Guid productId { get; set; }
 
-    public Guid sizeId { get; set; }
+    public string sizeId { get; set; }
 
-    public Guid colorId { get; set; }
+    public string colorId { get; set; }
 
     public int quantity { get; set; }
 }

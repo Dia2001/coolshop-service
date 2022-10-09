@@ -4,5 +4,5 @@ public class ProductInCategoryModel
 {
     public Guid productId { get; set; }
 
-    public Guid categoryId { get; set; }
+    public long categoryId { get; set; }
 }

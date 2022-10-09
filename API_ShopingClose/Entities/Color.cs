@@ -4,7 +4,7 @@ namespace API_ShopingClose.Entities
 {
     public class Color
     {
-        public Guid ColorID { get; set; }
+        public string ColorID { get; set; }
 
         [Required]
         public string? ColorName { get; set; }

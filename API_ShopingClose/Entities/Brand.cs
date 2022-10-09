@@ -4,7 +4,7 @@ namespace API_ShopingClose.Entities
 {
     public class Brand
     {
-        public Guid BrandID { get; set; }
+        public long BrandID { get; set; }
 
         [Required]
         public string? BrandName { get; set; }

@@ -4,5 +4,5 @@ public class AddColorToProductModel
 {
     public Guid productId { get; set; }
 
-    public Guid colorId { get; set; }
+    public string colorId { get; set; }
 }

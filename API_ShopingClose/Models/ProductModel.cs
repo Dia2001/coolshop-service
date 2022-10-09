@@ -14,9 +14,9 @@ namespace API_ShopingClose.Model
 
         public String? image { get; set; }
 
-        public Guid brandId { get; set; }
+        public long brandId { get; set; }
 
-        public Guid[]? categories { get; set; }
+        public long[]? categories { get; set; }
 
         public Detail? detail { get; set; }
 
@@ -28,9 +28,9 @@ namespace API_ShopingClose.Model
 
     public class Detail
     {
-        public Guid[] sizes { get; set; }
+        public string[] sizes { get; set; }
 
-        public Guid[] colors { get; set; }
+        public string[] colors { get; set; }
     }
 }
 

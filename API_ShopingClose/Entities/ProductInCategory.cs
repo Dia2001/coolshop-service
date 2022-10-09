@@ -8,5 +8,5 @@ public class ProductInCategory
     public Guid? productId { get; set; }
 
     [Required]
-    public Guid categoryId { get; set; }
+    public long categoryId { get; set; }
 }

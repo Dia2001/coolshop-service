@@ -11,10 +11,10 @@ public class ProductDetails
     public Guid? productId { get; set; }
 
     [Required]
-    public Guid sizeId { get; set; }
+    public string sizeId { get; set; }
 
     [Required]
-    public Guid colorId { get; set; }
+    public string colorId { get; set; }
 
     public int quantity { get; set; }
 }

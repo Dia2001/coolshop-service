@@ -15,7 +15,7 @@ namespace API_ShopingClose.Entities
         /// ID nhãn hiệu
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public Guid BrandID { get; set; }
+        public long BrandID { get; set; }
 
         /// <summary>
         /// Tên sản phẩm
@@ -50,5 +50,30 @@ namespace API_ShopingClose.Entities
         /// Mô tả sản phẩm
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Ngày tạo
+        /// </summary>
+        public DateTime CreatedDate { get; set; }
+
+        /// <summary>
+        /// Người tạo
+        /// </summary>
+        public string CreatedBy { get; set; }
+
+        /// <summary>
+        /// Ngày sửa gần nhất
+        /// </summary>
+        public DateTime ModifiedDate { get; set; }
+
+        /// <summary>
+        /// Người sửa gần nhất
+        /// </summary>
+        public string ModifiedBy { get; set; }
+
+        /// <summary>
+        /// Ngày xóa gần nhất
+        /// </summary>
+        public DateTime DeletedDate { get; set; }
     }
 }
