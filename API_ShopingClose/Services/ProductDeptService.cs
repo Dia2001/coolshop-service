@@ -88,18 +88,84 @@ namespace API_ShopingClose.Service
             return result.ToArray().Length > 0;
         }
 
+        public async Task<Dictionary<String, dynamic>?> getFilterProduct(
+             string? keyword,
+             long? brandId,
+             int pageSize,
+             int pageNumber)
+        {
+
+            string storedProcedureName = "Proc_product_GetPaging";
+
+            // Chuẩn bị tham số đầu vào cho stored procedure
+            var parameters = new DynamicParameters();
+            parameters.Add("@v_Offset", (pageNumber - 1) * pageSize);
+            parameters.Add("@v_Limit", pageSize);
+            parameters.Add("@v_Sort", "Rate DESC");
+
+            var orConditions = new List<string>();
+            var andConditions = new List<string>();
+            string whereClause = "";
+
+            if (keyword != null)
+            {
+                orConditions.Add($"ProductName LIKE '%{keyword}%'");
+            }
+            if (orConditions.Count > 0)
+            {
+                whereClause = $"({string.Join(" OR ", orConditions)})";
+            }
+            if (brandId != null)
+            {
+                andConditions.Add($"BrandID LIKE '%{brandId}%'");
+            }
+
+            if (andConditions.Count > 0)
+            {
+                if (whereClause != "")
+                {
+                    whereClause += $" AND {string.Join(" AND ", andConditions)}";
+                }
+                else
+                {
+                    whereClause += $"{string.Join(" AND ", andConditions)}";
+                }
+            }
+
+            parameters.Add("@v_Where", whereClause);
+
+            // Thực hiện gọi vào DB để chạy stored procedure với tham số đầu vào ở trên
+            var multipleResults = _conn.QueryMultiple(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+            if (multipleResults != null)
+            {
+                var products = (await multipleResults.ReadAsync<Product>()).ToList();
+                var totalCount = (await multipleResults.ReadAsync<long>()).Single();
+
+                Dictionary<String, dynamic> hash = new Dictionary<string, object>();
+                hash.Add("products", products);
+                hash.Add("totalCount", totalCount);
+
+                return hash;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public async Task<IEnumerable<Product>> getAllProducts()
         {
             string sql = "select * from product";
-            return await _conn.QueryAsync<Product>(sql); 
+            return await _conn.QueryAsync<Product>(sql);
         }
 
-        public async Task<Product> getOneProduct(Guid? productId)
+        public async Task<Product?> getOneProduct(Guid? productId)
         {
             string sql = "select * from product where ProductID=@ProductID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@ProductID",productId);
+            parameters.Add("@ProductID", productId);
 
             var result = await this._conn.QueryAsync<Product>(sql, parameters);
             return result.FirstOrDefault();

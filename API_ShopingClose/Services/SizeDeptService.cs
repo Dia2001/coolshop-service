@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using MySqlConnector;
-using System.Drawing;
+using API_ShopingClose.Entities;
 
 namespace API_ShopingClose.Service
 {

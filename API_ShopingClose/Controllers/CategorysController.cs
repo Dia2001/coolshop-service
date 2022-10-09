@@ -1,6 +1,7 @@
 ﻿using API_ShopingClose.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using API_ShopingClose.Entities;
+using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
@@ -20,12 +21,18 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-
                 var categories = _categoryservice.GetAllCategory();
+
+                List<CategoryModel> categoryModels = new List<CategoryModel>();
+
+                foreach (Category category in categories)
+                {
+                    categoryModels.Add(new CategoryModel(category));
+                }
 
                 if (categories != null)
                 {
-                    return StatusCode(StatusCodes.Status200OK, categories);
+                    return StatusCode(StatusCodes.Status200OK, categoryModels);
                 }
                 else
                 {

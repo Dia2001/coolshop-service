@@ -21,6 +21,21 @@ public class ConvertMethod
         return product;
     }
 
+    public static ProductModel convertProductToProductModel(Product product)
+    {
+        ProductModel productModel = new ProductModel();
+
+        productModel.productId = product.ProductID;
+        productModel.name = product.ProductName;
+        productModel.slug = product.Slug;
+        productModel.description = product.Description;
+        productModel.price = product.Price;
+        productModel.brandId = product.BrandID;
+        productModel.rate = productModel.rate;
+
+        return productModel;
+    }
+
     public static ProductInCategory convertProductInCategoryModelToProductInCategory(
         ProductInCategoryModel productInCategoryModel)
     {

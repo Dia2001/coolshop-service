@@ -3,10 +3,7 @@ using API_ShopingClose.Entities;
 using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Model;
 using API_ShopingClose.Common;
-using Dapper;
-using MySqlConnector;
 using API_ShopingClose.Helper;
-using API_ShopingClose.Entities.DTO;
 
 namespace API_ShopingClose.Controllers
 {
@@ -40,15 +37,7 @@ namespace API_ShopingClose.Controllers
 
                 foreach (var oneproduct in allProducts)
                 {
-                    ProductModel product = new ProductModel();
-                    product.productId = oneproduct.ProductID;
-                    product.name = oneproduct.ProductName;
-                    product.price = oneproduct.Price;
-                    product.description = oneproduct.Description;
-                    product.slug = oneproduct.Slug;
-                    product.image = oneproduct.Image;
-                    product.brandId = oneproduct.BrandID;
-                    product.rate = oneproduct.Rate;
+                    ProductModel product = ConvertMethod.convertProductToProductModel(oneproduct);
 
                     List<ProductInCategory> allCategoryProducts = (await
                   _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID)).ToList();
@@ -161,106 +150,111 @@ namespace API_ShopingClose.Controllers
             try
             {
 
-                Product infoproducts = await _productservice.getOneProduct(productId);
+                Product? infoproduct = await _productservice.getOneProduct(productId);
 
-                ProductModel product = new ProductModel();
-                product.productId = infoproducts.ProductID;
-                product.name = infoproducts.ProductName;
-                product.price = infoproducts.Price;
-                product.description = infoproducts.Description;
-                product.slug = infoproducts.Slug;
-                product.image = infoproducts.Image;
-                product.brandId = infoproducts.BrandID;
-                product.rate = infoproducts.Rate;
+                if (infoproduct != null)
 
-                List<ProductInCategory> allCategoryProducts = (await
-              _productInCategoryService.getProductInCategoryByProductID(infoproducts.ProductID)).ToList();
-
-                long[] listIdCategoryInProduct = new long[allCategoryProducts.Count()];
-                int i = 0;
-                foreach (var oneproductincategory in allCategoryProducts)
                 {
-                    listIdCategoryInProduct[i] = oneproductincategory.categoryId;
-                    i++;
-                }
-                product.categories = listIdCategoryInProduct;
+                    ProductModel product = ConvertMethod.convertProductToProductModel(infoproduct);
 
-                List<ProductDetails> allProductDetails = (await
-                    _productDetailService.getAllProductDetailByProductId(infoproducts.ProductID)).ToList();
+                    List<ProductInCategory> allCategoryProducts = (await
+                  _productInCategoryService.getProductInCategoryByProductID(infoproduct.ProductID)).ToList();
 
-                List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
-                List<ProductDetails> listColorInProduct = new List<ProductDetails>();
-
-                int totalQuantity = 0;
-
-                if (allProductDetails.Count() > 0)
-                {
-                    int colorI = 0;
-                    int sizeI = 0;
-                    foreach (var oneproductdetail in allProductDetails)
+                    long[] listIdCategoryInProduct = new long[allCategoryProducts.Count()];
+                    int i = 0;
+                    foreach (var oneproductincategory in allCategoryProducts)
                     {
-                        totalQuantity += oneproductdetail.quantity;
+                        listIdCategoryInProduct[i] = oneproductincategory.categoryId;
+                        i++;
+                    }
+                    product.categories = listIdCategoryInProduct;
 
-                        bool isNotEmptyColor = false;
-                        bool isNotEmptySize = false;
+                    List<ProductDetails> allProductDetails = (await
+                        _productDetailService.getAllProductDetailByProductId(infoproduct.ProductID)).ToList();
 
-                        foreach (var productDetailTmp in listSizeInProduct)
+                    List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
+                    List<ProductDetails> listColorInProduct = new List<ProductDetails>();
+
+                    int totalQuantity = 0;
+
+                    if (allProductDetails.Count() > 0)
+                    {
+                        int colorI = 0;
+                        int sizeI = 0;
+                        foreach (var oneproductdetail in allProductDetails)
                         {
-                            if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                            totalQuantity += oneproductdetail.quantity;
+
+                            bool isNotEmptyColor = false;
+                            bool isNotEmptySize = false;
+
+                            foreach (var productDetailTmp in listSizeInProduct)
                             {
-                                isNotEmptyColor = true;
-                                break;
+                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                {
+                                    isNotEmptyColor = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!isNotEmptyColor)
-                        {
-                            listSizeInProduct.Add(oneproductdetail);
-                            colorI++;
-                        }
-
-                        foreach (var productDetailTmp in listColorInProduct)
-                        {
-                            if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
+                            if (!isNotEmptyColor)
                             {
-                                isNotEmptySize = true;
-                                break;
+                                listSizeInProduct.Add(oneproductdetail);
+                                colorI++;
                             }
-                        }
-                        if (!isNotEmptySize)
-                        {
-                            listColorInProduct.Add(oneproductdetail);
-                            sizeI++;
+
+                            foreach (var productDetailTmp in listColorInProduct)
+                            {
+                                if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
+                                {
+                                    isNotEmptySize = true;
+                                    break;
+                                }
+                            }
+                            if (!isNotEmptySize)
+                            {
+                                listColorInProduct.Add(oneproductdetail);
+                                sizeI++;
+                            }
                         }
                     }
+
+                    Detail detailp = new Detail();
+
+                    string[] listSizeId = new string[listSizeInProduct.Count()];
+                    string[] listColorId = new string[listColorInProduct.Count()];
+
+                    int sizeCount = 0;
+                    int colorCount = 0;
+
+                    foreach (var proudctSize in listSizeInProduct)
+                    {
+                        listSizeId[sizeCount] = proudctSize.sizeId;
+                        sizeCount++;
+                    }
+
+                    foreach (var proudctColor in listColorInProduct)
+                    {
+                        listColorId[colorCount] = proudctColor.sizeId;
+                        colorCount++;
+                    }
+
+                    detailp.sizes = listSizeId;
+                    detailp.colors = listColorId;
+                    product.detail = detailp;
+                    product.totalQuantity = totalQuantity;
+                    product.rate = 0;
+
+                    return StatusCode(StatusCodes.Status200OK, product);
                 }
-
-                Detail detailp = new Detail();
-
-                string[] listSizeId = new string[listSizeInProduct.Count()];
-                string[] listColorId = new string[listColorInProduct.Count()];
-
-                int sizeCount = 0;
-                int colorCount = 0;
-
-                foreach (var proudctSize in listSizeInProduct)
+                else
                 {
-                    listSizeId[sizeCount] = proudctSize.sizeId;
-                    sizeCount++;
+                    dynamic response = new
+                    {
+                        status = 404,
+                        message = "Không tìm thấy sản phẩm!",
+                    };
+                    return StatusCode(StatusCodes.Status404NotFound, response);
                 }
-
-                foreach (var proudctColor in listColorInProduct)
-                {
-                    listColorId[colorCount] = proudctColor.sizeId;
-                    colorCount++;
-                }
-
-                detailp.sizes = listSizeId;
-                detailp.colors = listColorId;
-                product.detail = detailp;
-                product.totalQuantity = totalQuantity;
-                product.rate = 0;
-
-                return StatusCode(StatusCodes.Status200OK, product);
 
             }
             catch (Exception)
@@ -280,78 +274,29 @@ namespace API_ShopingClose.Controllers
         [Route("products/filter")]
         public async Task<IActionResult> filterEmployees(
             [FromQuery] string? keyword,
-            [FromQuery] Guid? brandID,
+            [FromQuery] long? brandId,
             [FromQuery] int pageSize = 10,
             [FromQuery] int pageNumber = 1)
         {
             try
-            {
-                var mySqlConnection = new MySqlConnection("Server=localhost;Port=3306;Database=coolshop;Uid=root;Pwd='';SslMode=none;");
-                string storedProcedureName = "Proc_product_GetPaging";
+            {                // Xử lý kết quả trả về từ DB
+                var result = await _productservice.getFilterProduct(keyword, brandId, pageSize, pageNumber);
 
-                // Chuẩn bị tham số đầu vào cho stored procedure
-                var parameters = new DynamicParameters();
-                parameters.Add("@v_Offset", (pageNumber - 1) * pageSize);
-                parameters.Add("@v_Limit", pageSize);
-                parameters.Add("@v_Sort", "Rate DESC");
-
-                var orConditions = new List<string>();
-                var andConditions = new List<string>();
-                string whereClause = "";
-
-                if (keyword != null)
+                if (result != null)
                 {
-                    orConditions.Add($"ProductName LIKE '%{keyword}%'");
-                }
-                if (orConditions.Count > 0)
-                {
-                    whereClause = $"({string.Join(" OR ", orConditions)})";
-                }
-                if (brandID != null)
-                {
-                    andConditions.Add($"BrandID LIKE '%{brandID}%'");
-                }
-
-                if (andConditions.Count > 0)
-                {
-                    if (whereClause != "")
-                    {
-                        whereClause += $" AND {string.Join(" AND ", andConditions)}";
-                    }
-                    else
-                    {
-                        whereClause += $"{string.Join(" AND ", andConditions)}";
-                    }
-                }
-
-                parameters.Add("@v_Where", whereClause);
-
-                // Thực hiện gọi vào DB để chạy stored procedure với tham số đầu vào ở trên
-                var multipleResults = mySqlConnection.QueryMultiple(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
-
-                // Xử lý kết quả trả về từ DB
-                if (multipleResults != null)
-                {
-                    var products = (await multipleResults.ReadAsync<Product>()).ToList();
-                    var totalCount = (await multipleResults.ReadAsync<long>()).Single();
+                    var products = result["products"];
+                    var totalRecord = result["totalCount"];
 
                     List<ProductModel> productfiters = new List<ProductModel>();
 
-                    long totalRecord = 0;
+                    long totalPage = totalRecord % pageSize == 0 ? totalRecord / pageSize : totalRecord / pageSize + 1;
+
                     foreach (var oneproduct in products)
                     {
-                        ProductModel product = new ProductModel();
-                        product.productId = oneproduct.ProductID;
-                        product.name = oneproduct.ProductName;
-                        product.price = oneproduct.Price;
-                        product.description = oneproduct.Description;
-                        product.slug = oneproduct.Slug;
-                        product.image = oneproduct.Image;
-                        product.brandId = oneproduct.BrandID;
-                        product.rate = oneproduct.Rate;
+                        ProductModel product = ConvertMethod.convertProductToProductModel(oneproduct);
 
-                        List<ProductInCategory> allCategoryProducts = (await
-                      _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID)).ToList();
+                        List<ProductInCategory> allCategoryProducts = await
+                      _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID);
 
                         long[] listIdCategoryInProduct = new long[allCategoryProducts.Count()];
                         int i = 0;
@@ -362,8 +307,8 @@ namespace API_ShopingClose.Controllers
                         }
                         product.categories = listIdCategoryInProduct;
 
-                        List<ProductDetails> allProductDetails = (await
-                            _productDetailService.getAllProductDetailByProductId(oneproduct.ProductID)).ToList();
+                        List<ProductDetails> allProductDetails = await
+                            _productDetailService.getAllProductDetailByProductId(oneproduct.ProductID);
 
                         List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
                         List<ProductDetails> listColorInProduct = new List<ProductDetails>();
@@ -427,7 +372,7 @@ namespace API_ShopingClose.Controllers
 
                         foreach (var proudctColor in listColorInProduct)
                         {
-                            listColorId[colorCount] = proudctColor.sizeId;
+                            listColorId[colorCount] = proudctColor.colorId;
                             colorCount++;
                         }
 
@@ -437,14 +382,15 @@ namespace API_ShopingClose.Controllers
                         product.totalQuantity = totalQuantity;
                         product.rate = 0;
                         productfiters.Add(product);
-
-                        totalRecord += totalQuantity;
                     }
 
-                    return StatusCode(StatusCodes.Status200OK, new PagingData<Product>()
+                    return StatusCode(StatusCodes.Status200OK, new ProductPageModel<ProductModel>()
                     {
+                        currentPage = pageNumber,
+                        pageSize = pageSize,
+                        totalPage = totalPage,
                         totalRecord = totalRecord,
-                        Data = products,
+                        Data = productfiters,
                     });
                 }
                 else
@@ -454,6 +400,7 @@ namespace API_ShopingClose.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 dynamic response = new
                 {
                     status = 500,

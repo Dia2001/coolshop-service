@@ -1,6 +1,7 @@
 ﻿using API_ShopingClose.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using API_ShopingClose.Entities;
+using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
@@ -20,12 +21,18 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-
                 var galleries = _galleryservice.GetAllGalleries();
+
+                List<GalleryModel> galleryModels = new List<GalleryModel>();
+
+                foreach (Galleries gallery in galleries)
+                {
+                    galleryModels.Add(new GalleryModel(gallery));
+                }
 
                 if (galleries != null)
                 {
-                    return StatusCode(StatusCodes.Status200OK, galleries);
+                    return StatusCode(StatusCodes.Status200OK, galleryModels);
                 }
                 else
                 {

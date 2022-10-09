@@ -1,6 +1,7 @@
 ﻿using API_ShopingClose.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using API_ShopingClose.Entities;
+using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
@@ -20,12 +21,18 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-
                 var sizes = _sizeservice.GetAllSize();
+
+                List<SizeModel> sizeModels = new List<SizeModel>();
+
+                foreach (Size size in sizes)
+                {
+                    sizeModels.Add(new SizeModel(size));
+                }
 
                 if (sizes != null)
                 {
-                    return StatusCode(StatusCodes.Status200OK,sizes);
+                    return StatusCode(StatusCodes.Status200OK, sizeModels);
                 }
                 else
                 {

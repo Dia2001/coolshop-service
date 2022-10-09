@@ -21,7 +21,7 @@ public class ProductDetailsDeptService
 
         parameters.Add("@ProductID", productId);
 
-        return await _conn.QueryAsync<ProductDetails>(sql, parameters);
+        return (await _conn.QueryAsync<ProductDetails>(sql, parameters)).ToList();
     }
 
     public async Task<bool> InsertProductDetails(ProductDetails productDetails)

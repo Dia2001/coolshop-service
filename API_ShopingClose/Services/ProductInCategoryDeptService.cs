@@ -47,6 +47,6 @@ public class ProductInCategoryDeptService
         var parameters = new DynamicParameters();
         parameters.Add("@ProductID", productID);
 
-        return await _conn.QueryAsync<ProductInCategory>(sql, parameters);
+        return (await _conn.QueryAsync<ProductInCategory>(sql, parameters)).ToList();
     }
 }

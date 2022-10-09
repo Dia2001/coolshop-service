@@ -1,6 +1,7 @@
 ﻿using API_ShopingClose.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using API_ShopingClose.Entities;
+using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
@@ -12,7 +13,7 @@ namespace API_ShopingClose.Controllers
 
         public ColorsController(ColorDeptService colorservice)
         {
-            _colorservice =colorservice;
+            _colorservice = colorservice;
         }
 
         [HttpGet]
@@ -20,12 +21,18 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-
                 var colors = _colorservice.GetAllColor();
+
+                List<ColorModel> colorModels = new List<ColorModel>();
+
+                foreach (Color color in colors)
+                {
+                    colorModels.Add(new ColorModel(color));
+                }
 
                 if (colors != null)
                 {
-                    return StatusCode(StatusCodes.Status200OK, colors);
+                    return StatusCode(StatusCodes.Status200OK, colorModels);
                 }
                 else
                 {
