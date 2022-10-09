@@ -2,7 +2,8 @@ namespace API_ShopingClose.Common;
 
 public class Validate
 {
-    private static readonly string[] fileImageType = { "image/png", "image/jepg", "image/jpg" };
+    private static readonly string[] fileImageType = {
+      "image/png", "image/jpeg", "image/jpg", "imamge/gif"};
 
     public static bool ValidateImageFileNameUpload(string contentType)
     {

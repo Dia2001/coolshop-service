@@ -15,13 +15,11 @@ public class ProductInCategoryDeptService
 
     public async Task<bool> InsertPrductInCategory(ProductInCategory productInCategory)
     {
-        string sql = "INSERT INTO productincategory(ProductInCategoryID, ProductID, CategoryID)"
-          + "VALUES (@ProductInCategoryID, @ProductID, @CategoryID)";
+        string sql = "INSERT INTO productincategory(ProductID, CategoryID)"
+          + "VALUES (@ProductID, @CategoryID)";
 
         var parameters = new DynamicParameters();
-        Guid productInCategoryID = Guid.NewGuid();
 
-        parameters.Add("@ProductInCategoryID", productInCategoryID);
         parameters.Add("@ProductID", productInCategory.productId);
         parameters.Add("@CategoryID", productInCategory.categoryId);
 

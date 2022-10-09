@@ -31,7 +31,8 @@ public class ConvertMethod
         productModel.description = product.Description;
         productModel.price = product.Price;
         productModel.brandId = product.BrandID;
-        productModel.rate = productModel.rate;
+        productModel.rate = product.Rate;
+        productModel.image = product.Image;
 
         return productModel;
     }

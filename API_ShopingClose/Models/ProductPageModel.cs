@@ -29,5 +29,5 @@ public class ProductPageModel<T>
     /// <summary>
     /// Mảng đối tượng thỏa mãn điều kiện lọc và phân trang 
     /// </summary>
-    public List<T> Data { get; set; } = new List<T>();
+    public List<T> products { get; set; } = new List<T>();
 }
