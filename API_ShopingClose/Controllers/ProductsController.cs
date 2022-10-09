@@ -3,6 +3,10 @@ using API_ShopingClose.Entities;
 using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Model;
 using API_ShopingClose.Common;
+using Dapper;
+using MySqlConnector;
+using API_ShopingClose.Helper;
+using API_ShopingClose.Entities.DTO;
 
 namespace API_ShopingClose.Controllers
 {
@@ -10,6 +14,7 @@ namespace API_ShopingClose.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        private string connectionString = AppSettings.Instance.ConnectionString;
         ProductDeptService _productservice;
         ProductInCategoryDeptService _productInCategoryService;
         ProductDetailsDeptService _productDetailService;
@@ -259,6 +264,194 @@ namespace API_ShopingClose.Controllers
 
             }
             catch (Exception)
+            {
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+        }
+
+        // Lấy tất cả sản phẩm và phân trang
+        [HttpGet]
+        [Route("products/filter")]
+        public async Task<IActionResult> filterEmployees(
+            [FromQuery] string? keyword,
+            [FromQuery] Guid? brandID,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int pageNumber = 1)
+        {
+            try
+            {
+                var mySqlConnection = new MySqlConnection("Server=localhost;Port=3306;Database=coolshop;Uid=root;Pwd='';SslMode=none;");
+                string storedProcedureName = "Proc_product_GetPaging";
+
+                // Chuẩn bị tham số đầu vào cho stored procedure
+                var parameters = new DynamicParameters();
+                parameters.Add("@v_Offset", (pageNumber - 1) * pageSize);
+                parameters.Add("@v_Limit", pageSize);
+                parameters.Add("@v_Sort", "Rate DESC");
+
+                var orConditions = new List<string>();
+                var andConditions = new List<string>();
+                string whereClause = "";
+
+                if (keyword != null)
+                {
+                    orConditions.Add($"ProductName LIKE '%{keyword}%'");
+                }
+                if (orConditions.Count > 0)
+                {
+                    whereClause = $"({string.Join(" OR ", orConditions)})";
+                }
+                if (brandID != null)
+                {
+                    andConditions.Add($"BrandID LIKE '%{brandID}%'");
+                }
+
+                if (andConditions.Count > 0)
+                {
+                    if (whereClause != "")
+                    {
+                        whereClause += $" AND {string.Join(" AND ", andConditions)}";
+                    }
+                    else
+                    {
+                        whereClause += $"{string.Join(" AND ", andConditions)}";
+                    }
+                }
+
+                parameters.Add("@v_Where", whereClause);
+
+                // Thực hiện gọi vào DB để chạy stored procedure với tham số đầu vào ở trên
+                var multipleResults = mySqlConnection.QueryMultiple(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+                // Xử lý kết quả trả về từ DB
+                if (multipleResults != null)
+                {
+                    var products = (await multipleResults.ReadAsync<Product>()).ToList();
+                    var totalCount =  (await multipleResults.ReadAsync<long>()).Single();
+
+                    List<ProductModel> productfiters = new List<ProductModel>();
+
+                    long totalRecord = 0;
+                    foreach (var oneproduct in products)
+                    {
+                        ProductModel product = new ProductModel();
+                        product.productId = oneproduct.ProductID;
+                        product.name = oneproduct.ProductName;
+                        product.price = oneproduct.Price;
+                        product.description = oneproduct.Description;
+                        product.slug = oneproduct.Slug;
+                        product.image = oneproduct.Image;
+                        product.brandId = oneproduct.BrandID;
+                        product.rate = oneproduct.Rate;
+
+                        List<ProductInCategory> allCategoryProducts = (await
+                      _productInCategoryService.getProductInCategoryByProductID(oneproduct.ProductID)).ToList();
+
+                        Guid[] listIdCategoryInProduct = new Guid[allCategoryProducts.Count()];
+                        int i = 0;
+                        foreach (var oneproductincategory in allCategoryProducts)
+                        {
+                            listIdCategoryInProduct[i] = oneproductincategory.categoryId;
+                            i++;
+                        }
+                        product.categories = listIdCategoryInProduct;
+
+                        List<ProductDetails> allProductDetails = (await
+                            _productDetailService.getAllProductDetailByProductId(oneproduct.ProductID)).ToList();
+
+                        List<ProductDetails> listSizeInProduct = new List<ProductDetails>();
+                        List<ProductDetails> listColorInProduct = new List<ProductDetails>();
+
+                        int totalQuantity = 0;
+
+                        if (allProductDetails.Count() > 0)
+                        {
+                            int colorI = 0;
+                            int sizeI = 0;
+                            foreach (var oneproductdetail in allProductDetails)
+                            {
+                                totalQuantity += oneproductdetail.quantity;
+
+                                bool isNotEmptyColor = false;
+                                bool isNotEmptySize = false;
+
+                                foreach (var productDetailTmp in listSizeInProduct)
+                                {
+                                    if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                    {
+                                        isNotEmptyColor = true;
+                                        break;
+                                    }
+                                }
+                                if (!isNotEmptyColor)
+                                {
+                                    listSizeInProduct.Add(oneproductdetail);
+                                    colorI++;
+                                }
+
+                                foreach (var productDetailTmp in listColorInProduct)
+                                {
+                                    if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
+                                    {
+                                        isNotEmptySize = true;
+                                        break;
+                                    }
+                                }
+                                if (!isNotEmptySize)
+                                {
+                                    listColorInProduct.Add(oneproductdetail);
+                                    sizeI++;
+                                }
+                            }
+                        }
+
+                        Detail detailp = new Detail();
+
+                        Guid[] listSizeId = new Guid[listSizeInProduct.Count()];
+                        Guid[] listColorId = new Guid[listColorInProduct.Count()];
+
+                        int sizeCount = 0;
+                        int colorCount = 0;
+
+                        foreach (var proudctSize in listSizeInProduct)
+                        {
+                            listSizeId[sizeCount] = proudctSize.sizeId;
+                            sizeCount++;
+                        }
+
+                        foreach (var proudctColor in listColorInProduct)
+                        {
+                            listColorId[colorCount] = proudctColor.sizeId;
+                            colorCount++;
+                        }
+
+                        detailp.sizes = listSizeId;
+                        detailp.colors = listColorId;
+                        product.detail = detailp;
+                        product.totalQuantity = totalQuantity;
+                        product.rate = 0;
+                        productfiters.Add(product);
+
+                        totalRecord +=totalQuantity;
+                    }
+
+                    return StatusCode(StatusCodes.Status200OK, new PagingData<Product>()
+                    {
+                        totalRecord =totalRecord,
+                        Data = products,
+                    });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }catch(Exception ex)
             {
                 dynamic response = new
                 {
