@@ -47,4 +47,19 @@ public class ConvertMethod
 
         return productInCategory;
     }
+
+    public static Product OverrideProduct(Product productOld, Product productNew)
+    {
+        Product productTmp = productOld;
+
+        productTmp.ModifiedDate = new DateTime();
+        productTmp.Rate = productNew.Rate;
+        productTmp.Slug = productNew.Slug;
+        productTmp.BrandID = productNew.BrandID;
+        productTmp.Image = productNew.Image;
+        productTmp.Description = productNew.Description;
+        productTmp.ProductName = productNew.ProductName;
+
+        return productTmp;
+    }
 }

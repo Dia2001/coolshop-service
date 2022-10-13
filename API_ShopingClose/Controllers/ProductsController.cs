@@ -541,6 +541,8 @@ namespace API_ShopingClose.Controllers
             {
                 Product product = ConvertMethod.convertProductModleToProduct(productModel);
 
+                Product productOld = await _productservice.getOneProduct(productId);
+                Console.WriteLine(productOld.Image);
                 if (file != null)
                 {
                     if (!Validate.ValidateImageFileNameUpload(file.ContentType))
@@ -569,6 +571,12 @@ namespace API_ShopingClose.Controllers
                     product.Image = await UploadFile(file);
 
                 }
+                else
+                {
+                    product.Image = productOld.Image;
+                }
+
+                product = ConvertMethod.OverrideProduct(productOld, product);
 
                 if (productModel.slug == null || productModel.slug.Equals(""))
                 {
@@ -576,7 +584,10 @@ namespace API_ShopingClose.Controllers
                 }
                 else
                 {
-                    product.Slug = await getSlug(null, productModel.slug);
+                    if (!product.Slug.Equals(productOld.Slug))
+                    {
+                        product.Slug = await getSlug(null, productModel.slug);
+                    }
                 }
 
                 if (await _productservice.UpdateProduct(product, productId))
