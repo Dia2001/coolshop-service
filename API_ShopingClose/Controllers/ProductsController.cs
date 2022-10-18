@@ -145,13 +145,13 @@ namespace API_ShopingClose.Controllers
 
         // Lấy thông tin một sản phẩm sản phẩm
         [HttpGet]
-        [Route("products/{productId}")]
-        public async Task<IActionResult> getOneProducts([FromRoute] Guid productId)
+        [Route("products/{productIS}")]
+        public async Task<IActionResult> getOneProducts([FromRoute] string productIS)
         {
             try
             {
 
-                Product? infoproduct = await _productservice.getOneProduct(productId);
+                Product? infoproduct = await _productservice.getOneProduct(productIS);
 
                 if (infoproduct != null)
 
@@ -518,7 +518,7 @@ namespace API_ShopingClose.Controllers
 
         [HttpPut]
         [Route("products/{productId}")]
-        public async Task<IActionResult> updateProduct([FromRoute] Guid productId,
+        public async Task<IActionResult> updateProduct([FromRoute] string productId,
             [FromForm] IFormFile? file, [FromForm] ProductModel productModel)
         {
             dynamic response = new

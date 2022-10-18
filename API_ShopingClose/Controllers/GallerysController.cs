@@ -5,7 +5,7 @@ using API_ShopingClose.Model;
 
 namespace API_ShopingClose.Controllers
 {
-    [Route("api/v1/galleries")]
+    [Route("api/v1")]
     [ApiController]
     public class GallerysController : ControllerBase
     {
@@ -17,6 +17,7 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpGet]
+        [Route("galleries")]
         public IActionResult GetAllGalleries()
         {
             try
@@ -33,6 +34,38 @@ namespace API_ShopingClose.Controllers
                 if (galleries != null)
                 {
                     return StatusCode(StatusCodes.Status200OK, galleryModels);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+        [HttpGet]
+        [Route("galleries/{productId}")]
+        public async Task<IActionResult> getAllGallertyOneProducts([FromRoute] Guid productId)
+        {
+            try
+            {
+                List<Galleries> allGalleries = (await _galleryservice.GetAllGalleriesByProductId(productId)).ToList();
+
+                List<GalleryModel> galleryOneProduct = new List<GalleryModel>();
+
+                foreach (Galleries gallery in allGalleries)
+                {
+                    galleryOneProduct.Add(new GalleryModel(gallery));
+                }
+
+                if (allGalleries != null)
+                {
+                    return StatusCode(StatusCodes.Status200OK, galleryOneProduct);
                 }
                 else
                 {
