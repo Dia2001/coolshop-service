@@ -528,7 +528,7 @@ namespace API_ShopingClose.Controllers
                 message = "Call servser faile!",
             };
 
-            if (!ModelState.IsValid || !productId.Equals(productModel.productId))
+            if (!ModelState.IsValid || !productId.Equals(productModel.productId.ToString()))
             {
                 response = new
                 {
