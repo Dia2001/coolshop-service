@@ -191,20 +191,6 @@ namespace API_ShopingClose.Controllers
 
                             foreach (var productDetailTmp in listSizeInProduct)
                             {
-                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
-                                {
-                                    isNotEmptyColor = true;
-                                    break;
-                                }
-                            }
-                            if (!isNotEmptyColor)
-                            {
-                                listSizeInProduct.Add(oneproductdetail);
-                                colorI++;
-                            }
-
-                            foreach (var productDetailTmp in listColorInProduct)
-                            {
                                 if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
                                 {
                                     isNotEmptySize = true;
@@ -213,8 +199,23 @@ namespace API_ShopingClose.Controllers
                             }
                             if (!isNotEmptySize)
                             {
-                                listColorInProduct.Add(oneproductdetail);
+                                listSizeInProduct.Add(oneproductdetail);
                                 sizeI++;
+                            }
+
+                            foreach (var productDetailTmp in listColorInProduct)
+                            {
+                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                {
+                                    isNotEmptyColor = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isNotEmptyColor)
+                            {
+                                listColorInProduct.Add(oneproductdetail);
+                                colorI++;
                             }
                         }
                     }
@@ -235,7 +236,7 @@ namespace API_ShopingClose.Controllers
 
                     foreach (var proudctColor in listColorInProduct)
                     {
-                        listColorId[colorCount] = proudctColor.sizeId;
+                        listColorId[colorCount] = proudctColor.colorId;
                         colorCount++;
                     }
 
