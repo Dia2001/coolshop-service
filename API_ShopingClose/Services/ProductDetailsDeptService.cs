@@ -94,4 +94,15 @@ public class ProductDetailsDeptService
 
         return await _conn.ExecuteAsync(sql, parameters) > 0;
     }
+
+    public async Task<IEnumerable<ProductDetails>> getOneProductDetail(Guid productId)
+    {
+        string sql = "SELECT * from productdetails where ProductID = @ProductID";
+
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@ProductID", productId);
+
+        return (await _conn.QueryAsync<ProductDetails>(sql, parameters)).ToList();
+    }
 }

@@ -414,6 +414,39 @@ namespace API_ShopingClose.Controllers
 
         }
 
+        [HttpGet]
+        [Route("products/quantity/{productId}")]
+        public async Task<IActionResult> getOneProductDetail([FromRoute] Guid productId)
+        {
+            try
+            {
+                List<ProductDetails> allDetailOneProducts = (await _productDetailService.getOneProductDetail(productId)).ToList();
+                List<ProductDetails> detailOneProducts = new List<ProductDetails>();
+
+                foreach (var onedetailproduct in allDetailOneProducts)
+                {
+                    ProductDetails product = new ProductDetails();
+                    product.productId = onedetailproduct.productId;
+                    product.sizeId = onedetailproduct.sizeId;
+                    product.colorId = onedetailproduct.colorId;
+                    product.quantity = onedetailproduct.quantity;
+                    detailOneProducts.Add(product);
+                }
+                return StatusCode(StatusCodes.Status200OK,detailOneProducts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        } 
+
+
         [HttpPost]
         [Route("products")]
         public async Task<IActionResult> createProduct([FromForm] ProductModel productModel, [FromForm] IFormFile? file)
