@@ -30,7 +30,6 @@ namespace API_ShopingClose.Controllers
             {
                 Cart cart = ConvertMethod.convertCartModelToCart(cartmodel);
                 cart.userId = Guid.Parse(GetUserId().ToString());
-                //Nếu thêm thành công thì trả về id của user ngoài ra thì thông báo lỗi
                 if (await _cartservice.InsertProductToCart(cart) == true)
                 {
                     return StatusCode(StatusCodes.Status201Created,cart.productId);
