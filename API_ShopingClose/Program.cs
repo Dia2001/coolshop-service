@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API_ShopingClose.Service;
 using MySqlConnector;
+using API_ShopingClose.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -74,6 +75,9 @@ builder.Services.AddSingleton<ColorDeptService>(s =>
 
 builder.Services.AddSingleton<GalleryDeptService>(s =>
     new GalleryDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<CartDeptService>(s =>
+    new CartDeptService(new MySqlConnection(conn)));
 
 
 builder.Services.AddEndpointsApiExplorer();

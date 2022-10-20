@@ -1,5 +1,6 @@
 using API_ShopingClose.Entities;
 using API_ShopingClose.Model;
+using API_ShopingClose.Models;
 
 namespace API_ShopingClose.Common;
 
@@ -61,5 +62,18 @@ public class ConvertMethod
         productTmp.ProductName = productNew.ProductName;
 
         return productTmp;
+    }
+    public static Cart convertCartModelToCart(CartModel cartmodel)
+    {
+        Cart cart = new Cart();
+
+        cart.productId = cartmodel.productId;
+        cart.sizeId = cartmodel.sizeId;
+        cart.colorId = cartmodel.colorId;
+        cart.productName = cartmodel.productName;
+        cart.productImage = cartmodel.productImage;
+        cart.quantity = cartmodel.quantity;
+
+        return cart;
     }
 }
