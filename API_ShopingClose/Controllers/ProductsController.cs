@@ -124,7 +124,7 @@ namespace API_ShopingClose.Controllers
                     detailp.colors = listColorId;
                     product.detail = detailp;
                     product.totalQuantity = totalQuantity;
-                    product.rate = 0;
+                    product.rate = oneproduct.Rate;
                     products.Add(product);
                 }
                 return StatusCode(StatusCodes.Status200OK, products);
@@ -244,7 +244,7 @@ namespace API_ShopingClose.Controllers
                     detailp.colors = listColorId;
                     product.detail = detailp;
                     product.totalQuantity = totalQuantity;
-                    product.rate = 0;
+                    product.rate = product.rate;
 
                     return StatusCode(StatusCodes.Status200OK, product);
                 }
@@ -383,7 +383,7 @@ namespace API_ShopingClose.Controllers
                         detailp.colors = listColorId;
                         product.detail = detailp;
                         product.totalQuantity = totalQuantity;
-                        product.rate = 0;
+                        product.rate = oneproduct.Rate;
                         productfiters.Add(product);
                     }
 
