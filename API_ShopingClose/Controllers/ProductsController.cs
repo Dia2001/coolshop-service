@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Model;
 using API_ShopingClose.Common;
 using API_ShopingClose.Helper;
+using API_ShopingClose.Models;
 
 namespace API_ShopingClose.Controllers
 {
@@ -421,12 +422,11 @@ namespace API_ShopingClose.Controllers
             try
             {
                 List<ProductDetails> allDetailOneProducts = (await _productDetailService.getOneProductDetail(productId)).ToList();
-                List<ProductDetails> detailOneProducts = new List<ProductDetails>();
+                List<ProductdetailQuantity> detailOneProducts = new List<ProductdetailQuantity>();
 
                 foreach (var onedetailproduct in allDetailOneProducts)
                 {
-                    ProductDetails product = new ProductDetails();
-                    product.productId = onedetailproduct.productId;
+                    ProductdetailQuantity product = new ProductdetailQuantity();
                     product.sizeId = onedetailproduct.sizeId;
                     product.colorId = onedetailproduct.colorId;
                     product.quantity = onedetailproduct.quantity;
