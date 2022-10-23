@@ -124,7 +124,7 @@ namespace API_ShopingClose.Controllers
                     detailp.colors = listColorId;
                     product.detail = detailp;
                     product.totalQuantity = totalQuantity;
-                    product.rate = 0;
+                    product.rate = oneproduct.Rate;
                     products.Add(product);
                 }
                 return StatusCode(StatusCodes.Status200OK, products);
@@ -145,13 +145,13 @@ namespace API_ShopingClose.Controllers
 
         // Lấy thông tin một sản phẩm sản phẩm
         [HttpGet]
-        [Route("products/{productId}")]
-        public async Task<IActionResult> getOneProducts([FromRoute] Guid productId)
+        [Route("products/{productIS}")]
+        public async Task<IActionResult> getOneProducts([FromRoute] string productIS)
         {
             try
             {
 
-                Product? infoproduct = await _productservice.getOneProduct(productId);
+                Product? infoproduct = await _productservice.getOneProduct(productIS);
 
                 if (infoproduct != null)
 
@@ -191,20 +191,6 @@ namespace API_ShopingClose.Controllers
 
                             foreach (var productDetailTmp in listSizeInProduct)
                             {
-                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
-                                {
-                                    isNotEmptyColor = true;
-                                    break;
-                                }
-                            }
-                            if (!isNotEmptyColor)
-                            {
-                                listSizeInProduct.Add(oneproductdetail);
-                                colorI++;
-                            }
-
-                            foreach (var productDetailTmp in listColorInProduct)
-                            {
                                 if (oneproductdetail.sizeId.Equals(productDetailTmp.sizeId))
                                 {
                                     isNotEmptySize = true;
@@ -213,8 +199,23 @@ namespace API_ShopingClose.Controllers
                             }
                             if (!isNotEmptySize)
                             {
-                                listColorInProduct.Add(oneproductdetail);
+                                listSizeInProduct.Add(oneproductdetail);
                                 sizeI++;
+                            }
+
+                            foreach (var productDetailTmp in listColorInProduct)
+                            {
+                                if (oneproductdetail.colorId.Equals(productDetailTmp.colorId))
+                                {
+                                    isNotEmptyColor = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isNotEmptyColor)
+                            {
+                                listColorInProduct.Add(oneproductdetail);
+                                colorI++;
                             }
                         }
                     }
@@ -235,7 +236,7 @@ namespace API_ShopingClose.Controllers
 
                     foreach (var proudctColor in listColorInProduct)
                     {
-                        listColorId[colorCount] = proudctColor.sizeId;
+                        listColorId[colorCount] = proudctColor.colorId;
                         colorCount++;
                     }
 
@@ -243,7 +244,7 @@ namespace API_ShopingClose.Controllers
                     detailp.colors = listColorId;
                     product.detail = detailp;
                     product.totalQuantity = totalQuantity;
-                    product.rate = 0;
+                    product.rate = product.rate;
 
                     return StatusCode(StatusCodes.Status200OK, product);
                 }
@@ -382,7 +383,7 @@ namespace API_ShopingClose.Controllers
                         detailp.colors = listColorId;
                         product.detail = detailp;
                         product.totalQuantity = totalQuantity;
-                        product.rate = 0;
+                        product.rate = oneproduct.Rate;
                         productfiters.Add(product);
                     }
 
@@ -412,6 +413,39 @@ namespace API_ShopingClose.Controllers
             }
 
         }
+
+        [HttpGet]
+        [Route("products/quantity/{productId}")]
+        public async Task<IActionResult> getOneProductDetail([FromRoute] Guid productId)
+        {
+            try
+            {
+                List<ProductDetails> allDetailOneProducts = (await _productDetailService.getOneProductDetail(productId)).ToList();
+                List<ProductDetails> detailOneProducts = new List<ProductDetails>();
+
+                foreach (var onedetailproduct in allDetailOneProducts)
+                {
+                    ProductDetails product = new ProductDetails();
+                    product.productId = onedetailproduct.productId;
+                    product.sizeId = onedetailproduct.sizeId;
+                    product.colorId = onedetailproduct.colorId;
+                    product.quantity = onedetailproduct.quantity;
+                    detailOneProducts.Add(product);
+                }
+                return StatusCode(StatusCodes.Status200OK,detailOneProducts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        } 
+
 
         [HttpPost]
         [Route("products")]
@@ -518,7 +552,7 @@ namespace API_ShopingClose.Controllers
 
         [HttpPut]
         [Route("products/{productId}")]
-        public async Task<IActionResult> updateProduct([FromRoute] Guid productId,
+        public async Task<IActionResult> updateProduct([FromRoute] string productId,
             [FromForm] IFormFile? file, [FromForm] ProductModel productModel)
         {
             dynamic response = new
@@ -527,7 +561,7 @@ namespace API_ShopingClose.Controllers
                 message = "Call servser faile!",
             };
 
-            if (!ModelState.IsValid || !productId.Equals(productModel.productId))
+            if (!ModelState.IsValid || !productId.Equals(productModel.productId.ToString()))
             {
                 response = new
                 {

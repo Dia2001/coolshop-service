@@ -38,9 +38,10 @@ namespace API_ShopingClose.Service
             return null;
         }
 
-        public async Task<bool> UpdateProduct(Product product, Guid productID)
+        public async Task<bool> UpdateProduct(Product product, string productID)
         {
             bool b = false;
+            Guid productid = Guid.Parse(productID);
             string updateProductCommand = "UPDATE product " +
                                     "SET BrandID =@BrandID, " +
                                     "ProductName =@ProductName, " +
@@ -52,7 +53,7 @@ namespace API_ShopingClose.Service
                                     "WHERE ProductID =@ProductID;";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@ProductID", productID);
+            parameters.Add("@ProductID", productid);
             parameters.Add("@BrandID", product.BrandID);
             parameters.Add("@ProductName", product.ProductName);
             parameters.Add("@Price", product.Price);
@@ -160,12 +161,20 @@ namespace API_ShopingClose.Service
             return await _conn.QueryAsync<Product>(sql);
         }
 
-        public async Task<Product?> getOneProduct(Guid? productId)
+        public async Task<Product?> getOneProduct(string productIdorSlug)
         {
-            string sql = "select * from product where ProductID=@ProductID";
-
+            Guid productId=new Guid();
             var parameters = new DynamicParameters();
-            parameters.Add("@ProductID", productId);
+            string sql = "select * from product where ProductID=@ProductID";
+            if (Guid.TryParse(productIdorSlug, out productId))
+            {
+                parameters.Add("@ProductID", productId);
+            }
+            else
+            {
+                sql = "select * from product where Slug=@Slug";
+                parameters.Add("@Slug", productIdorSlug);
+            }
 
             var result = await this._conn.QueryAsync<Product>(sql, parameters);
             return result.FirstOrDefault();
