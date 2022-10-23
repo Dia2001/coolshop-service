@@ -1,6 +1,7 @@
 ﻿using API_ShopingClose.Common;
 using API_ShopingClose.Entities;
 using API_ShopingClose.Models;
+using API_ShopingClose.Service;
 using API_ShopingClose.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,13 @@ namespace API_ShopingClose.Controllers
     {
         private readonly IConfiguration _config;
         CartDeptService _cartservice;
-
+        ProductDeptService _productservice;
         public CartsController(IConfiguration config, ILogger<UsersController> logger, 
-            CartDeptService cartservice) : base(logger)
+            CartDeptService cartservice, ProductDeptService productservice) : base(logger)
         {
             _config = config;
             _cartservice =cartservice;
+            _productservice = productservice;
         }
 
         [HttpPost]
@@ -30,6 +32,10 @@ namespace API_ShopingClose.Controllers
             {
                 Cart cart = ConvertMethod.convertCartModelToCart(cartmodel);
                 cart.userId = Guid.Parse(GetUserId().ToString());
+
+                Product product = (await _productservice.getOneProduct(cart.productId.ToString()));
+                cart.productName = product.ProductName;
+                cart.productImage = product.Image;
                 if (await _cartservice.InsertProductToCart(cart) == true)
                 {
                     return StatusCode(StatusCodes.Status201Created,cart.productId);

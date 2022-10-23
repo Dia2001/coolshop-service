@@ -5,13 +5,9 @@
    
             public Guid productId;
 
-            public Guid sizeId;
+            public string sizeId;
 
-            public Guid colorId;
-
-            public string productName;
-
-            public string productImage;
+            public string colorId;
 
             public int quantity;
     }

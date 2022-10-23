@@ -70,8 +70,6 @@ public class ConvertMethod
         cart.productId = cartmodel.productId;
         cart.sizeId = cartmodel.sizeId;
         cart.colorId = cartmodel.colorId;
-        cart.productName = cartmodel.productName;
-        cart.productImage = cartmodel.productImage;
         cart.quantity = cartmodel.quantity;
 
         return cart;

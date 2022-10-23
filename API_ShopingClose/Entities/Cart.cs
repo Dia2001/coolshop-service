@@ -6,9 +6,9 @@
 
         public Guid productId;
 
-        public Guid sizeId;
+        public string sizeId;
 
-        public Guid colorId;
+        public string colorId;
 
         public string productName;
 
