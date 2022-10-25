@@ -8,7 +8,7 @@ namespace API_ShopingClose.Entities
         /// ID Role
         /// </summary>
         [Key]
-        public Guid RoleID { get; set; }
+        public string RoleID { get; set; }
 
         /// <summary>
         /// Tên role

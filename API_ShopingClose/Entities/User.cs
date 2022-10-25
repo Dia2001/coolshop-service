@@ -76,7 +76,7 @@ namespace API_ShopingClose.Entities
         /// ID Role
         /// </summary>
         [Required(ErrorMessage = "e004")]
-        public Guid RoleID { get; set; }
+        public string RoleID { get; set; }
 
         #endregion
     }

@@ -76,5 +76,25 @@ namespace API_ShopingClose.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("products/{userId}")]
+        public async Task<IActionResult> getCartByUserID(Guid userId)
+        {
+            try
+            {
+                List<Cart> carts = (await _cartservice.GetAllCartByUserId(userId)).ToList();
+                return  StatusCode(StatusCodes.Status201Created,carts);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
     }
 }

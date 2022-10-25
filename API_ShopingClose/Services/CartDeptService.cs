@@ -57,5 +57,14 @@ namespace API_ShopingClose.Services
             Cart result = this._conn.ExecuteScalar<Cart>(sql, parameters);
             return result;
         }
+
+        public async Task<IEnumerable<Cart>> GetAllCartByUserId(Guid userId)
+        {
+            string sql = "SELECT * FROM cart where UserID=@UserID;";
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserID", userId);
+
+            return await this._conn.QueryAsync<Cart>(sql, parameters); ;
+        }
     }
 }
