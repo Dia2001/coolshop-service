@@ -14,6 +14,8 @@
 
         public string productImage;
 
+        public decimal price;
+
         public int quantity;
 
     }

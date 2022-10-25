@@ -36,14 +36,30 @@ namespace API_ShopingClose.Controllers
                 Product product = (await _productservice.getOneProduct(cart.productId.ToString()));
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
-                if (await _cartservice.InsertProductToCart(cart) == true)
+                cart.price = product.Price;
+                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId)!=null)
                 {
-                    return StatusCode(StatusCodes.Status201Created,cart.productId);
+                    if (await _cartservice.updateProductToCart(cart))
+                    {
+                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    }
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    if (await _cartservice.InsertProductToCart(cart) == true)
+                    {
+                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    }
                 }
+
             }
             catch (MySqlException mySqlException)
             {
