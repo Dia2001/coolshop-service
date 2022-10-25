@@ -2,6 +2,7 @@
 
 public class CartModel
 {
+
     public Guid productId { get; set; }
 
     public string sizeId { get; set; }
