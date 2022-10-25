@@ -77,7 +77,7 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpGet]
-        [Route("products/{userId}")]
+        [Route("carts/{userId}")]
         public async Task<IActionResult> getCartByUserID(Guid userId)
         {
             try

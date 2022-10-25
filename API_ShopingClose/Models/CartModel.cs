@@ -3,12 +3,12 @@
     public class CartModel
     {
    
-            public Guid productId;
+            public Guid productId { get; set; };
 
-            public string sizeId;
+            public string sizeId { get; set; };
 
-            public string colorId;
+            public string colorId { get; set; };
 
-            public int quantity;
+            public int quantity { get; set; };
     }
 }
