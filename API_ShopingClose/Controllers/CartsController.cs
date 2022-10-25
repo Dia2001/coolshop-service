@@ -16,11 +16,11 @@ namespace API_ShopingClose.Controllers
         private readonly IConfiguration _config;
         CartDeptService _cartservice;
         ProductDeptService _productservice;
-        public CartsController(IConfiguration config, ILogger<UsersController> logger, 
+        public CartsController(IConfiguration config, ILogger<UsersController> logger,
             CartDeptService cartservice, ProductDeptService productservice) : base(logger)
         {
             _config = config;
-            _cartservice =cartservice;
+            _cartservice = cartservice;
             _productservice = productservice;
         }
 
@@ -37,8 +37,9 @@ namespace API_ShopingClose.Controllers
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
                 cart.price = product.Price;
-                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId)!=null)
+                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId) != null)
                 {
+                    cart.quantity++;
                     if (await _cartservice.updateProductToCart(cart))
                     {
                         return StatusCode(StatusCodes.Status201Created, cart.productId);
@@ -67,6 +68,7 @@ namespace API_ShopingClose.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, "e003");
                 }
+                Console.WriteLine(mySqlException.Message);
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
             catch (Exception exception)
@@ -83,9 +85,9 @@ namespace API_ShopingClose.Controllers
             try
             {
                 List<Cart> carts = (await _cartservice.GetAllCartByUserId(userId)).ToList();
-                return  StatusCode(StatusCodes.Status201Created,carts);
+                return StatusCode(StatusCodes.Status201Created, carts);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 dynamic response = new

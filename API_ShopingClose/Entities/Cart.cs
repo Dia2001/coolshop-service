@@ -2,6 +2,8 @@
 {
     public class Cart
     {
+        public long id { get; set; }
+
         public Guid userId { get; set; }
 
         public Guid productId { get; set; }
