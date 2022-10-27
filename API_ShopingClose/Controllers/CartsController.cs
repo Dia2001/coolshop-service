@@ -37,7 +37,7 @@ namespace API_ShopingClose.Controllers
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
                 cart.price = product.Price;
-                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId) != null)
+                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId,cart.sizeId,cart.colorId) != null)
                 {
                     cart.quantity++;
                     if (await _cartservice.updateProductToCart(cart))
@@ -79,13 +79,14 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpGet]
-        [Route("carts/{userId}")]
-        public async Task<IActionResult> getCartByUserID(Guid userId)
+        [Route("carts/products")]
+        public async Task<IActionResult> getCartByUserID()
         {
             try
             {
+                Guid userId = Guid.Parse(GetUserId().ToString());
                 List<Cart> carts = (await _cartservice.GetAllCartByUserId(userId)).ToList();
-                return StatusCode(StatusCodes.Status201Created, carts);
+                return StatusCode(StatusCodes.Status200OK, carts);
             }
             catch (Exception ex)
             {
