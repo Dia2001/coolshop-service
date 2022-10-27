@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Model;
 using API_ShopingClose.Entities;
+using Swashbuckle.AspNetCore.Annotations;
+using MySqlConnector;
 
 namespace API_ShopingClose.Controllers
 {
@@ -46,6 +48,104 @@ namespace API_ShopingClose.Controllers
                 Console.WriteLine(exception.Message);
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
+        }
+
+
+        // tạo mới brand
+        [HttpPost]
+        public IActionResult AddBrand(Brand brand)
+        {
+            try
+            {
+                if (_brandservice.addBrand(brand) == true)
+                {
+                    return StatusCode(StatusCodes.Status201Created, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+
+        // sửa brand
+        [HttpPut]
+        public IActionResult UpdateBrand([FromBody] Brand brand)
+        {
+            try
+            {
+                if (_brandservice.updateBrand(brand) == true)
+                {
+                    return StatusCode(StatusCodes.Status201Created, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+
+        // xóa brand
+        [HttpDelete]
+        public IActionResult DeleteBrand([FromBody] Brand brand)
+        {
+            try
+            {
+                if (_brandservice.deleteBrand(brand) == true)
+                {
+                    return StatusCode(StatusCodes.Status201Created, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+        private IActionResult StatusCode(int status201Created, Func<OkResult> ok)
+        {
+            throw new NotImplementedException();
         }
     }
 }
