@@ -76,14 +76,14 @@ public class ConvertMethod
     }
     public static Order convertOrderModelToOrder(OrderModel orderModel)
     {
-        Order order=new Order();
+        Order order = new Order();
         order.OrderstatusID = orderModel.OrderstatusID;
         order.PhoneShip = orderModel.PhoneShip;
         order.AddresShip = orderModel.AddresShip;
         order.NameShip = orderModel.NameShip;
         order.Note = orderModel.Note;
-        order.CreateDate = orderModel.CreateDate;
-        order.UpdateDate = orderModel.UpdateDate;
+        order.CreateDate = orderModel.CreateDate == null ? new DateTime() : orderModel.CreateDate;
+        order.UpdateDate = orderModel.UpdateDate == null ? new DateTime() : orderModel.UpdateDate;
 
         return order;
     }

@@ -6,7 +6,7 @@
 
         public Guid UserID { get; set; }
 
-        public int OrderstatusID { get; set; }
+        public string OrderstatusID { get; set; }
 
         public string PhoneShip { get; set; }
 
@@ -16,8 +16,8 @@
 
         public string Note { get; set; }
 
-        public DateTime CreateDate { get; set; }
+        public DateTime? CreateDate { get; set; }
 
-        public DateTime UpdateDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
     }
 }
