@@ -79,6 +79,11 @@ builder.Services.AddSingleton<GalleryDeptService>(s =>
 builder.Services.AddSingleton<CartDeptService>(s =>
     new CartDeptService(new MySqlConnection(conn)));
 
+builder.Services.AddSingleton<OrderDeptService>(s =>
+    new OrderDeptService(new MySqlConnection(conn)));
+
+builder.Services.AddSingleton<OrderDetailDeptService>(s =>
+    new OrderDetailDeptService(new MySqlConnection(conn)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

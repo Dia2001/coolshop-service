@@ -2,7 +2,7 @@
 using Dapper;
 using MySqlConnector;
 
-namespace API_ShopingClose.Service
+namespace API_ShopingClose.Services
 {
     public class ProductDeptService
     {
