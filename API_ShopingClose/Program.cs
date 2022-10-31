@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API_ShopingClose.Service;
 using MySqlConnector;
-using API_ShopingClose.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
