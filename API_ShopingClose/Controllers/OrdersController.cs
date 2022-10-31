@@ -26,7 +26,7 @@ namespace API_ShopingClose.Controllers
 
         [HttpPost]
         [Route("Orders")]
-        public async Task<IActionResult> addOrder([FromForm] OrderModel orderModel)
+        public async Task<IActionResult> addOrder([FromBody] OrderModel orderModel)
         {
             dynamic response = new
             {
