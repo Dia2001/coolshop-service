@@ -89,7 +89,7 @@ namespace API_ShopingClose.Controllers
             {
                 if (_sizeservice.updateSize(size) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created, "Success");
+                    return StatusCode(StatusCodes.Status200OK, "Success");
                 }
                 else
                 {
@@ -120,7 +120,7 @@ namespace API_ShopingClose.Controllers
             {
                 if (_sizeservice.deleteSize(size) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created, "Success");
+                    return StatusCode(StatusCodes.Status200OK, "Success");
                 }
                 else
                 {

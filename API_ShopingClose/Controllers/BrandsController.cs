@@ -90,7 +90,7 @@ namespace API_ShopingClose.Controllers
             {
                 if (_brandservice.updateBrand(brand) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created, "Success");
+                    return StatusCode(StatusCodes.Status200OK, "Success");
                 }
                 else
                 {
@@ -121,7 +121,7 @@ namespace API_ShopingClose.Controllers
             {
                 if (_brandservice.deleteBrand(brand) == true)
                 {
-                    return StatusCode(StatusCodes.Status201Created, "Success");
+                    return StatusCode(StatusCodes.Status200OK, "Success");
                 }
                 else
                 {
