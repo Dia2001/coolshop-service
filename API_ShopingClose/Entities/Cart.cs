@@ -2,19 +2,23 @@
 {
     public class Cart
     {
-        public Guid userId;
+        public long id { get; set; }
 
-        public Guid productId;
+        public Guid userId { get; set; }
 
-        public string sizeId;
+        public Guid productId { get; set; }
 
-        public string colorId;
+        public string sizeId { get; set; }
 
-        public string productName;
+        public string colorId { get; set; }
 
-        public string productImage;
+        public string productName { get; set; }
 
-        public int quantity;
+        public string productImage { get; set; }
+
+        public decimal price { get; set; }
+
+        public int quantity { get; set; }
 
     }
 }

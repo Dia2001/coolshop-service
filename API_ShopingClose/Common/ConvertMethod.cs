@@ -74,4 +74,33 @@ public class ConvertMethod
 
         return cart;
     }
+    public static Order convertOrderModelToOrder(OrderModel orderModel)
+    {
+        Order order = new Order();
+        order.OrderstatusID = orderModel.OrderstatusID;
+        order.PhoneShip = orderModel.PhoneShip;
+        order.AddresShip = orderModel.AddresShip;
+        order.NameShip = orderModel.NameShip;
+        order.Note = orderModel.Note;
+        order.CreateDate = orderModel.CreateDate == null ? new DateTime() : orderModel.CreateDate;
+        order.UpdateDate = orderModel.UpdateDate == null ? new DateTime() : orderModel.UpdateDate;
+
+        return order;
+    }
+
+    public static OrderModel convertOrderToOrderModel(Order order)
+    {
+        OrderModel orderModel = new OrderModel();
+        orderModel.OrderID = order.OrderID;
+        orderModel.UserID = order.UserID;
+        orderModel.OrderstatusID=order.OrderstatusID;
+        orderModel.PhoneShip= order.PhoneShip;
+        orderModel.AddresShip= order.AddresShip;
+        orderModel.NameShip= order.NameShip;
+        orderModel.Note = order.Note;
+        orderModel.CreateDate = order.CreateDate;
+        orderModel.UpdateDate = order.UpdateDate;
+
+        return orderModel;
+    }
 }

@@ -29,5 +29,53 @@ namespace API_ShopingClose.Service
 
             return (await _conn.QueryAsync<Galleries>(sql, parameters)).ToList();
         }
+
+        public async Task<Galleries> GetGalleriesByID(long gallryId)
+        {
+            try
+            {
+                string sql = "SELECT * FROM gallery where GalleryID = @GalleryID";
+                var parameters = new DynamicParameters();
+                parameters.Add("@GalleryID", gallryId);
+                return await _conn.QueryFirstAsync<Galleries>(sql, parameters);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<bool> addListGalleries(List<Galleries> galleries)
+        {
+            try
+            {
+                string sql = "INSERT INTO gallery (ProductID, Thumbnail) values(@ProductID, @Thumbnail)";
+                await _conn.ExecuteAsync(sql, galleries);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> removeGallery(long gallryId)
+        {
+            try
+            {
+                string sql = "DELETE FROM gallery where GalleryID = @GalleryId";
+                var parameters = new DynamicParameters();
+                parameters.Add("@GalleryID", gallryId);
+                await _conn.ExecuteAsync(sql, parameters);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
     }
 }

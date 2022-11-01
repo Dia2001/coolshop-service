@@ -20,5 +20,51 @@ namespace API_ShopingClose.Service
             var result = this._conn.Query<Color>(getAllColorsCommand);
             return result;
         }
+
+
+        // tạo  Color
+        public bool addColor(Color color)
+        {
+            bool b = false;
+            string sql = "INSERT INTO color ( ColorID , ColorName , Description)" +
+                   "VALUES ( @ColorID , @ColorName , @Description);";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ColorID", color.ColorID);
+            parameters.Add("@ColorName", color.ColorName);
+            parameters.Add("@Description", color.Description);
+            b = this._conn.Execute(sql, parameters) > 0;
+
+            return b;
+        }
+
+        // cập nhật color
+        public bool updateColor(string colorId, Color color)
+        {
+            bool b = false;
+            string sql = "Update color set ColorName = @ColorName , Description = @Description" +
+                                        " where ColorID = @ColorID";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ColorID", colorId);
+            parameters.Add("@ColorName", color.ColorName);
+            parameters.Add("@Description", color.Description);
+            b = this._conn.Execute(sql, parameters) > 0;
+
+            return b;
+        }
+
+        // xóa color
+        public bool deleteColor(string colorId)
+        {
+            bool b = false;
+            string sql = "Delete from color where ColorID = @ColorID";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ColorID", colorId);
+            b = this._conn.Execute(sql, parameters) > 0;
+
+            return b;
+        }
     }
 }

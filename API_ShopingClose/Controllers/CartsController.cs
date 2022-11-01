@@ -2,7 +2,6 @@
 using API_ShopingClose.Entities;
 using API_ShopingClose.Models;
 using API_ShopingClose.Service;
-using API_ShopingClose.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
@@ -16,11 +15,11 @@ namespace API_ShopingClose.Controllers
         private readonly IConfiguration _config;
         CartDeptService _cartservice;
         ProductDeptService _productservice;
-        public CartsController(IConfiguration config, ILogger<UsersController> logger, 
+        public CartsController(IConfiguration config, ILogger<UsersController> logger,
             CartDeptService cartservice, ProductDeptService productservice) : base(logger)
         {
             _config = config;
-            _cartservice =cartservice;
+            _cartservice = cartservice;
             _productservice = productservice;
         }
 
@@ -36,14 +35,31 @@ namespace API_ShopingClose.Controllers
                 Product product = (await _productservice.getOneProduct(cart.productId.ToString()));
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
-                if (await _cartservice.InsertProductToCart(cart) == true)
+                cart.price = product.Price;
+                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId,cart.sizeId,cart.colorId) != null)
                 {
-                    return StatusCode(StatusCodes.Status201Created,cart.productId);
+                    cart.quantity++;
+                    if (await _cartservice.updateProductToCart(cart))
+                    {
+                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    }
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    if (await _cartservice.InsertProductToCart(cart) == true)
+                    {
+                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                    }
                 }
+
             }
             catch (MySqlException mySqlException)
             {
@@ -51,6 +67,7 @@ namespace API_ShopingClose.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, "e003");
                 }
+                Console.WriteLine(mySqlException.Message);
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
             catch (Exception exception)
@@ -60,5 +77,26 @@ namespace API_ShopingClose.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("carts/products")]
+        public async Task<IActionResult> getCartByUserID()
+        {
+            try
+            {
+                Guid userId = Guid.Parse(GetUserId().ToString());
+                List<Cart> carts = (await _cartservice.GetAllCartByUserId(userId)).ToList();
+                return StatusCode(StatusCodes.Status200OK, carts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
     }
 }

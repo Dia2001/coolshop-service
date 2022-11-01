@@ -31,4 +31,23 @@ public static class Utils
         }
         return text;
     }
+
+    public static async Task<string> UploadFile(IFormFile file)
+    {
+        try
+        {
+            string fileName = DateTime.Now.ToString("yyyyMMdd-HHmmss") + file.FileName;
+            string path = Constants.ROOT_PATH_IMAGE_PRODUCT + fileName;
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return fileName;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return "";
+        }
+    }
 }

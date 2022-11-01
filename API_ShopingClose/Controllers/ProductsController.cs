@@ -432,7 +432,7 @@ namespace API_ShopingClose.Controllers
                     product.quantity = onedetailproduct.quantity;
                     detailOneProducts.Add(product);
                 }
-                return StatusCode(StatusCodes.Status200OK,detailOneProducts);
+                return StatusCode(StatusCodes.Status200OK, detailOneProducts);
             }
             catch (Exception ex)
             {
@@ -444,7 +444,7 @@ namespace API_ShopingClose.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
-        } 
+        }
 
 
         [HttpPost]
@@ -480,7 +480,7 @@ namespace API_ShopingClose.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
 
-                product.Image = await UploadFile(file);
+                product.Image = await Utils.UploadFile(file);
             }
 
             product.Slug = await getSlug(productModel.slug, productModel.name);
@@ -602,7 +602,7 @@ namespace API_ShopingClose.Controllers
                     // Xoa file anh goc (Tam thoi an di do may bi loi khong cho xoa)
                     // System.IO.File.Delete(Constants.ROOT_PATH_IMAGE_PRODUCT + productModel.image);
 
-                    product.Image = await UploadFile(file);
+                    product.Image = await Utils.UploadFile(file);
 
                 }
                 else
@@ -1103,25 +1103,6 @@ namespace API_ShopingClose.Controllers
             }
 
             return slugTmp;
-        }
-
-        private async Task<string> UploadFile(IFormFile file)
-        {
-            try
-            {
-                string fileName = DateTime.Now.ToString("yyyyMMdd-HHmmss") + file.FileName;
-                string path = Constants.ROOT_PATH_IMAGE_PRODUCT + fileName;
-
-                using var stream = new FileStream(path, FileMode.Create);
-                await file.CopyToAsync(stream);
-
-                return fileName;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return "";
-            }
         }
     }
 }

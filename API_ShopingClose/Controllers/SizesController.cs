@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Entities;
 using API_ShopingClose.Model;
+using MySqlConnector;
 
 namespace API_ShopingClose.Controllers
 {
@@ -46,5 +47,102 @@ namespace API_ShopingClose.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
         }
+
+
+        // tạo mới size
+        [HttpPost]
+        public IActionResult AddSize(Size size)
+        {
+            try
+            {
+                if (_sizeservice.addSize(size) == true)
+                {
+                    return StatusCode(StatusCodes.Status201Created, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+
+
+        // sửa Size
+        [HttpPut]
+        [Route("{sizeId}")]
+        public IActionResult UpdateSize([FromRoute] string sizeId, [FromBody] Size size)
+        {
+            try
+            {
+                if (_sizeservice.updateSize(sizeId, size) == true)
+                {
+                    return StatusCode(StatusCodes.Status200OK, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
+
+        // xóa Size
+        [HttpDelete]
+        [Route("{sizeId}")]
+        public IActionResult DeleteSize([FromRoute] string sizeId)
+        {
+            try
+            {
+                if (_sizeservice.deleteSize(sizeId) == true)
+                {
+                    return StatusCode(StatusCodes.Status200OK, "Success");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                }
+            }
+            catch (MySqlException mySqlException)
+            {
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+            }
+        }
+
     }
 }

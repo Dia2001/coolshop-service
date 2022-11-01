@@ -191,6 +191,7 @@ namespace API_ShopingClose.Controllers
             {
              new Claim(ClaimTypes.NameIdentifier,user.UserID.ToString()),
              new Claim(ClaimTypes.Name,user.Username),
+             new Claim(ClaimTypes.Role,user.RoleID.ToString())
             };
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
