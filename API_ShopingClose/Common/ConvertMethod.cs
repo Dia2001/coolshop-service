@@ -103,4 +103,19 @@ public class ConvertMethod
 
         return orderModel;
     }
+    
+    public static OrderDetailsModel convertOrderDetailsToOrderDetailModel(OrderDetails orderDetailTmp)
+    {
+        OrderDetailsModel orderDetailModel = new OrderDetailsModel();
+        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
+        orderDetailModel.ProductID = orderDetailTmp.ProductID;
+        orderDetailModel.SizeID = orderDetailTmp.SizeID;
+        orderDetailModel.ColorID = orderDetailTmp.ColorID;
+        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
+        orderDetailModel.Price = orderDetailTmp.Price;
+        orderDetailModel.Promotion = orderDetailTmp.Promotion;
+        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+
+        return orderDetailModel;
+    }
 }

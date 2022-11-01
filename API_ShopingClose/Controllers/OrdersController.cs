@@ -41,15 +41,7 @@ namespace API_ShopingClose.Controllers
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
                     {
-                        OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-                        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-                        orderDetailModel.ProductID = orderDetailTmp.ProductID;
-                        orderDetailModel.SizeID = orderDetailTmp.SizeID;
-                        orderDetailModel.ColorID = orderDetailTmp.ColorID;
-                        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-                        orderDetailModel.Price = orderDetailTmp.Price;
-                        orderDetailModel.Promotion = orderDetailTmp.Promotion;
-                        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                        OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
@@ -71,24 +63,41 @@ namespace API_ShopingClose.Controllers
             }
         }
 
-        //[HttpGet]
-        //[Route("orders/user")]
-        //public async Task<IActionResult> getAllOrderToUser()
-        //{
-        //    try
-        //    {
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        dynamic response = new
-        //        {
-        //            status = 500,
-        //            message = "Call servser faile!",
-        //        };
-        //        return StatusCode(StatusCodes.Status500InternalServerError, response);
-        //    }
-        //}
+        [HttpGet]
+        [Route("orders/user")]
+        public async Task<IActionResult> getAllOrderToUser()
+        {
+            try
+            {
+                List<OrderModel> orderModes = new List<OrderModel>();
+                List<Order> orders = (await _orderService.getAllOrderToUser(Guid.Parse(GetUserId().ToString()))).ToList();
+                foreach (var ordertemp in orders)
+                {
+                    OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
+                    int count = 0;
+                    foreach (var orderDetailTmp in listOrdetail)
+                    {
+                        OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
+                        orderDetailArr[count] = orderDetailModel;
+                        count++;
+                    }
+                    orderdata.OrderDetail = orderDetailArr;
+                    orderModes.Add(orderdata);
+                }
+                return StatusCode(StatusCodes.Status200OK, orderModes);
+            }
+            catch (Exception ex)
+            {
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
 
         [HttpGet]
         [Route("orders/{orderId}")]
@@ -104,15 +113,7 @@ namespace API_ShopingClose.Controllers
                 int count = 0;
                 foreach (var orderDetailTmp in listOrdetail)
                 {
-                    OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-                    orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-                    orderDetailModel.ProductID = orderDetailTmp.ProductID;
-                    orderDetailModel.SizeID = orderDetailTmp.SizeID;
-                    orderDetailModel.ColorID = orderDetailTmp.ColorID;
-                    orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-                    orderDetailModel.Price = orderDetailTmp.Price;
-                    orderDetailModel.Promotion = orderDetailTmp.Promotion;
-                    orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                    OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
                     orderDetailArr[count] = orderDetailModel;
                     count++;
                 }
