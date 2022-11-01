@@ -2,6 +2,8 @@
 {
     public class OrderDetailsModel
     {
+        public Guid? OrderdetailID { get; set; }
+
         public Guid ProductID { get; set; }
 
         public string SizeID { get; set; }

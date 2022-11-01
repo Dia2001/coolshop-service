@@ -4,6 +4,8 @@
     {
         public Guid? OrderID { get; set; }
 
+        public Guid? UserID { get; set; }
+
         public string? OrderstatusID { get; set; }
 
         public string PhoneShip { get; set; }

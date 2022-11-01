@@ -39,5 +39,18 @@ namespace API_ShopingClose.Service
             return null;
         }
 
+        public async Task<Order> getOneOrderByUserIdAndOrderId(Guid userId,Guid orderId)
+        {
+            string sql = "SELECT * FROM orders where UserID=@UserID and OrderID = @OrderID";
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@UserID",userId);
+            parameters.Add("@OrderID", orderId);
+
+            var result = await _conn.QueryAsync<Order>(sql, parameters);
+            return result.FirstOrDefault();
+        }
+
     }
 }

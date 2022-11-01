@@ -87,4 +87,20 @@ public class ConvertMethod
 
         return order;
     }
+
+    public static OrderModel convertOrderToOrderModel(Order order)
+    {
+        OrderModel orderModel = new OrderModel();
+        orderModel.OrderID = order.OrderID;
+        orderModel.UserID = order.UserID;
+        orderModel.OrderstatusID=order.OrderstatusID;
+        orderModel.PhoneShip= order.PhoneShip;
+        orderModel.AddresShip= order.AddresShip;
+        orderModel.NameShip= order.NameShip;
+        orderModel.Note = order.Note;
+        orderModel.CreateDate = order.CreateDate;
+        orderModel.UpdateDate = order.UpdateDate;
+
+        return orderModel;
+    }
 }

@@ -24,6 +24,47 @@ namespace API_ShopingClose.Controllers
             _productservice = productservice;
         }
 
+        [HttpGet]
+        [Route("orders/{orderId}")]
+        public async Task<IActionResult> getAllOrderByIdUser([FromRoute] Guid orderId)
+        {
+            try
+            {
+                Order order = await _orderService.getOneOrderByUserIdAndOrderId(Guid.Parse(GetUserId().ToString()), orderId);
+                OrderModel orderdata =ConvertMethod.convertOrderToOrderModel(order);
+                Console.WriteLine(Guid.Parse(orderdata.OrderID.ToString()));
+                List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
+                int count = 0;
+                foreach (var orderDetailTmp in listOrdetail)
+                {
+                    OrderDetailsModel orderDetailModel = new OrderDetailsModel();
+                    orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
+                    orderDetailModel.ProductID = orderDetailTmp.ProductID;
+                    orderDetailModel.SizeID = orderDetailTmp.SizeID;
+                    orderDetailModel.ColorID = orderDetailTmp.ColorID;
+                    orderDetailModel.Quantity = orderDetailTmp.Qunatity;
+                    orderDetailModel.Price = orderDetailTmp.Price;
+                    orderDetailModel.Promotion = orderDetailTmp.Promotion;
+                    orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                    orderDetailArr[count] = orderDetailModel;
+                    count++;
+                }
+                return StatusCode(StatusCodes.Status200OK, orderDetailArr);
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
         [HttpPost]
         [Route("orders")]
         public async Task<IActionResult> createOrder([FromBody] OrderModel orderModel)
