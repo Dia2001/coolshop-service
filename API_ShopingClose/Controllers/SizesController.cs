@@ -83,11 +83,12 @@ namespace API_ShopingClose.Controllers
 
         // sửa Size
         [HttpPut]
-        public IActionResult UpdateSize(Size size)
+        [Route("{sizeId}")]
+        public IActionResult UpdateSize([FromRoute] string sizeId, [FromBody] Size size)
         {
             try
             {
-                if (_sizeservice.updateSize(size) == true)
+                if (_sizeservice.updateSize(sizeId, size) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }
@@ -114,11 +115,12 @@ namespace API_ShopingClose.Controllers
 
         // xóa Size
         [HttpDelete]
-        public IActionResult DeleteSize(Size size)
+        [Route("{sizeId}")]
+        public IActionResult DeleteSize([FromRoute] string sizeId)
         {
             try
             {
-                if (_sizeservice.deleteSize(size) == true)
+                if (_sizeservice.deleteSize(sizeId) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }

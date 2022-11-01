@@ -83,11 +83,12 @@ namespace API_ShopingClose.Controllers
 
         // sửa Color
         [HttpPut]
-        public IActionResult UpdateColor(Color color)
+        [Route("{colorId}")]
+        public IActionResult UpdateColor([FromRoute] string colorId, [FromBody] Color color)
         {
             try
             {
-                if (_colorservice.updateColor(color) == true)
+                if (_colorservice.updateColor(colorId, color) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }
@@ -114,11 +115,12 @@ namespace API_ShopingClose.Controllers
 
         // xóa Color
         [HttpDelete]
-        public IActionResult DeleteColor(Color color)
+        [Route("{colorId}")]
+        public IActionResult DeleteColor([FromRoute] string colorId)
         {
             try
             {
-                if (_colorservice.deleteColor(color) == true)
+                if (_colorservice.deleteColor(colorId) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }

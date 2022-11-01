@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using API_ShopingClose.Model;
 using API_ShopingClose.Entities;
-using Swashbuckle.AspNetCore.Annotations;
 using MySqlConnector;
 
 namespace API_ShopingClose.Controllers
@@ -84,11 +83,12 @@ namespace API_ShopingClose.Controllers
 
         // sửa brand
         [HttpPut]
-        public IActionResult UpdateBrand([FromBody] Brand brand)
+        [Route("{brandId}")]
+        public IActionResult UpdateBrand([FromRoute] long brandId, [FromBody] Brand brand)
         {
             try
             {
-                if (_brandservice.updateBrand(brand) == true)
+                if (_brandservice.updateBrand(brandId, brand) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }
@@ -115,11 +115,12 @@ namespace API_ShopingClose.Controllers
 
         // xóa brand
         [HttpDelete]
-        public IActionResult DeleteBrand([FromBody] Brand brand)
+        [Route("{brandId}")]
+        public IActionResult DeleteBrand([FromRoute] long brandId)
         {
             try
             {
-                if (_brandservice.deleteBrand(brand) == true)
+                if (_brandservice.deleteBrand(brandId) == true)
                 {
                     return StatusCode(StatusCodes.Status200OK, "Success");
                 }

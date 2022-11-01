@@ -39,14 +39,14 @@ namespace API_ShopingClose.Service
         }
 
         // cập nhật color
-        public bool updateColor(Color color)
+        public bool updateColor(string colorId, Color color)
         {
             bool b = false;
             string sql = "Update color set ColorName = @ColorName , Description = @Description" +
                                         " where ColorID = @ColorID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@ColorID", color.ColorID);
+            parameters.Add("@ColorID", colorId);
             parameters.Add("@ColorName", color.ColorName);
             parameters.Add("@Description", color.Description);
             b = this._conn.Execute(sql, parameters) > 0;
@@ -55,13 +55,13 @@ namespace API_ShopingClose.Service
         }
 
         // xóa color
-        public bool deleteColor(Color color)
+        public bool deleteColor(string colorId)
         {
             bool b = false;
             string sql = "Delete from color where ColorID = @ColorID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@ColorID", color.ColorID);
+            parameters.Add("@ColorID", colorId);
             b = this._conn.Execute(sql, parameters) > 0;
 
             return b;

@@ -39,14 +39,14 @@ namespace API_ShopingClose.Service
         }
 
         // cập nhật brand
-        public bool updateBrand(Brand brand)
+        public bool updateBrand(long brandId, Brand brand)
         {
             bool b = false;
             string sql = "Update brand set BrandName = @BrandName , Description = @Description" +
-                                        " where BrandID = @BrandID" ;
+                                        " where BrandID = @BrandID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@BrandID", brand.BrandID);
+            parameters.Add("@BrandID", brandId);
             parameters.Add("@BrandName", brand.BrandName);
             parameters.Add("@Description", brand.Description);
             b = this._conn.Execute(sql, parameters) > 0;
@@ -60,13 +60,13 @@ namespace API_ShopingClose.Service
         }
 
         // xóa brand
-        public bool deleteBrand(Brand brand)
+        public bool deleteBrand(long brandId)
         {
             bool b = false;
             string sql = "Delete from brand where BrandID = @BrandID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@BrandID", brand.BrandID);
+            parameters.Add("@BrandID", brandId);
             b = this._conn.Execute(sql, parameters) > 0;
 
             return b;

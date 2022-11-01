@@ -39,14 +39,14 @@ namespace API_ShopingClose.Service
         }
 
         // cập nhật size
-        public bool updateSize(Size size)
+        public bool updateSize(string sizeId, Size size)
         {
             bool b = false;
             string sql = "Update size set SizeName = @SizeName , Description = @Description" +
                                         " where SizeID = @SizeID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@SizeID", size.SizeID);
+            parameters.Add("@SizeID", sizeId);
             parameters.Add("@SizeName", size.SizeName);
             parameters.Add("@Description", size.Description);
             b = this._conn.Execute(sql, parameters) > 0;
@@ -55,13 +55,13 @@ namespace API_ShopingClose.Service
         }
 
         // xóa size
-        public bool deleteSize(Size size)
+        public bool deleteSize(string sizeId)
         {
             bool b = false;
             string sql = "Delete from size where SizeID = @SizeID";
 
             var parameters = new DynamicParameters();
-            parameters.Add("@SizeID", size.SizeID);
+            parameters.Add("@SizeID", sizeId);
             b = this._conn.Execute(sql, parameters) > 0;
 
             return b;
