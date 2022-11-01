@@ -41,15 +41,7 @@ namespace API_ShopingClose.Controllers
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
                     {
-                        OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-                        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-                        orderDetailModel.ProductID = orderDetailTmp.ProductID;
-                        orderDetailModel.SizeID = orderDetailTmp.SizeID;
-                        orderDetailModel.ColorID = orderDetailTmp.ColorID;
-                        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-                        orderDetailModel.Price = orderDetailTmp.Price;
-                        orderDetailModel.Promotion = orderDetailTmp.Promotion;
-                        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                        OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
@@ -87,15 +79,7 @@ namespace API_ShopingClose.Controllers
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
                     {
-                        OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-                        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-                        orderDetailModel.ProductID = orderDetailTmp.ProductID;
-                        orderDetailModel.SizeID = orderDetailTmp.SizeID;
-                        orderDetailModel.ColorID = orderDetailTmp.ColorID;
-                        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-                        orderDetailModel.Price = orderDetailTmp.Price;
-                        orderDetailModel.Promotion = orderDetailTmp.Promotion;
-                        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                        OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
@@ -129,15 +113,7 @@ namespace API_ShopingClose.Controllers
                 int count = 0;
                 foreach (var orderDetailTmp in listOrdetail)
                 {
-                    OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-                    orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-                    orderDetailModel.ProductID = orderDetailTmp.ProductID;
-                    orderDetailModel.SizeID = orderDetailTmp.SizeID;
-                    orderDetailModel.ColorID = orderDetailTmp.ColorID;
-                    orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-                    orderDetailModel.Price = orderDetailTmp.Price;
-                    orderDetailModel.Promotion = orderDetailTmp.Promotion;
-                    orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                    OrderDetailsModel orderDetailModel = ConvertMethod.convertOrderDetailsToOrderDetailModel(orderDetailTmp);
                     orderDetailArr[count] = orderDetailModel;
                     count++;
                 }
