@@ -52,5 +52,16 @@ namespace API_ShopingClose.Service
             return result.FirstOrDefault();
         }
 
+        public async Task<IEnumerable<Order>> getAllOrder()
+        {
+            string sql = "SELECT * FROM orders";
+            return (await _conn.QueryAsync<Order>(sql)).ToList();
+        }
+
+        public async Task<IEnumerable<Order>> getAllOrderToUser(Guid userId)
+        {
+            string sql = "SELECT * FROM orders";
+            return (await _conn.QueryAsync<Order>(sql)).ToList();
+        }
     }
 }

@@ -25,6 +25,72 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpGet]
+        [Route("orders")]
+        public async Task<IActionResult> getAllOrder()
+        {
+            try
+            {
+
+                List<OrderModel> orderModes = new List<OrderModel>();
+                List<Order> orders =(await _orderService.getAllOrder()).ToList();
+                foreach(var ordertemp in orders)
+                {
+                    OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
+                    int count = 0;
+                    foreach (var orderDetailTmp in listOrdetail)
+                    {
+                        OrderDetailsModel orderDetailModel = new OrderDetailsModel();
+                        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
+                        orderDetailModel.ProductID = orderDetailTmp.ProductID;
+                        orderDetailModel.SizeID = orderDetailTmp.SizeID;
+                        orderDetailModel.ColorID = orderDetailTmp.ColorID;
+                        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
+                        orderDetailModel.Price = orderDetailTmp.Price;
+                        orderDetailModel.Promotion = orderDetailTmp.Promotion;
+                        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+                        orderDetailArr[count] = orderDetailModel;
+                        count++;
+                    }
+                    orderdata.OrderDetail = orderDetailArr;
+                    orderModes.Add(orderdata);
+                }
+                return StatusCode(StatusCodes.Status200OK, orderModes);
+
+
+            }
+            catch(Exception ex)
+            {
+                dynamic response = new
+                {
+                    status = 500,
+                    message = "Call servser faile!",
+                };
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        //[HttpGet]
+        //[Route("orders/user")]
+        //public async Task<IActionResult> getAllOrderToUser()
+        //{
+        //    try
+        //    {
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        dynamic response = new
+        //        {
+        //            status = 500,
+        //            message = "Call servser faile!",
+        //        };
+        //        return StatusCode(StatusCodes.Status500InternalServerError, response);
+        //    }
+        //}
+
+        [HttpGet]
         [Route("orders/{orderId}")]
         public async Task<IActionResult> getAllOrderByIdUser([FromRoute] Guid orderId)
         {
@@ -50,7 +116,8 @@ namespace API_ShopingClose.Controllers
                     orderDetailArr[count] = orderDetailModel;
                     count++;
                 }
-                return StatusCode(StatusCodes.Status200OK, orderDetailArr);
+                orderdata.OrderDetail = orderDetailArr;
+                return StatusCode(StatusCodes.Status200OK, orderdata);
 
             }
             catch(Exception ex)
