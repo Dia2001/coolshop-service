@@ -36,9 +36,11 @@ namespace API_ShopingClose.Controllers
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
                 cart.price = product.Price;
-                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId,cart.sizeId,cart.colorId) != null)
+                Cart cartDb = await _cartservice.checkUserProductCart(cart.userId, cart.productId, cart.sizeId, cart.colorId);
+
+                if (cartDb != null)
                 {
-                    cart.quantity++;
+                    cart.quantity += cartDb.quantity;
                     if (await _cartservice.updateProductToCart(cart))
                     {
                         return StatusCode(StatusCodes.Status201Created, cart.productId);

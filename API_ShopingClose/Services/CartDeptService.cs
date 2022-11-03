@@ -16,7 +16,7 @@ namespace API_ShopingClose.Service
         public async Task<bool> InsertProductToCart(Cart cart)
         {
             string insertCartCommand = "INSERT INTO cart (UserID, ProductID, SizeID, ColorID, ProductName, ProductImage, Quantity)" +
-                   "VALUES (@UserID,@ProductID,@SizeID,@ColorID,@ProductName,@ProductImage,@Quantity);";
+                   "VALUES (@UserID,@ProductID,@SizeID,@ColorID,@ProductName,@ProductImage,@Quantity, @Price);";
 
             var parameters = new DynamicParameters();
             parameters.Add("@UserID", cart.userId);
@@ -26,6 +26,7 @@ namespace API_ShopingClose.Service
             parameters.Add("@ProductName", cart.productName);
             parameters.Add("@ProductImage", cart.productImage);
             parameters.Add("@Quantity", cart.quantity);
+            parameters.Add("@Price", cart.price);
 
             return await this._conn.ExecuteAsync(insertCartCommand, parameters) > 0;
         }
@@ -33,7 +34,7 @@ namespace API_ShopingClose.Service
         public async Task<bool> updateProductToCart(Cart cart)
         {
             string sql = "UPDATE cart " +
-                                    "SET Quantity =@Quantity" +
+                                    "SET Quantity =@Quantity, Price = @Price" +
                                     " WHERE UserID=@UserID AND ProductID =@ProductID AND SizeID=@SizeID AND ColorID=@ColorID;";
 
             var parameters = new DynamicParameters();
@@ -42,8 +43,9 @@ namespace API_ShopingClose.Service
             parameters.Add("@ProductID", cart.productId);
             parameters.Add("@SizeID", cart.sizeId);
             parameters.Add("@ColorID", cart.colorId);
-            return await this._conn.ExecuteAsync(sql, parameters) > 0;
+            parameters.Add("@Price", cart.price);
 
+            return await this._conn.ExecuteAsync(sql, parameters) > 0;
         }
         public async Task<Cart> checkUserProductCart(Guid userId, Guid productId, string sizeId, string colorId)
         {
