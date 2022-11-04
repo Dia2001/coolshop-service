@@ -32,11 +32,11 @@ namespace API_ShopingClose.Controllers
             {
 
                 List<OrderModel> orderModes = new List<OrderModel>();
-                List<Order> orders =(await _orderService.getAllOrder()).ToList();
-                foreach(var ordertemp in orders)
+                List<Order> orders = (await _orderService.getAllOrder()).ToList();
+                foreach (var ordertemp in orders)
                 {
                     OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
-                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                     OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
@@ -45,15 +45,16 @@ namespace API_ShopingClose.Controllers
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
-                    orderdata.OrderDetail = orderDetailArr;
+                    orderdata.orderDetail = orderDetailArr;
                     orderModes.Add(orderdata);
                 }
                 return StatusCode(StatusCodes.Status200OK, orderModes);
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 dynamic response = new
                 {
                     status = 500,
@@ -74,7 +75,7 @@ namespace API_ShopingClose.Controllers
                 foreach (var ordertemp in orders)
                 {
                     OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
-                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                     OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
@@ -83,13 +84,14 @@ namespace API_ShopingClose.Controllers
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
-                    orderdata.OrderDetail = orderDetailArr;
+                    orderdata.orderDetail = orderDetailArr;
                     orderModes.Add(orderdata);
                 }
                 return StatusCode(StatusCodes.Status200OK, orderModes);
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 dynamic response = new
                 {
                     status = 500,
@@ -106,9 +108,9 @@ namespace API_ShopingClose.Controllers
             try
             {
                 Order order = await _orderService.getOneOrderByUserIdAndOrderId(Guid.Parse(GetUserId().ToString()), orderId);
-                OrderModel orderdata =ConvertMethod.convertOrderToOrderModel(order);
-                Console.WriteLine(Guid.Parse(orderdata.OrderID.ToString()));
-                List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(order);
+                Console.WriteLine(Guid.Parse(orderdata.orderId.ToString()));
+                List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                 OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                 int count = 0;
                 foreach (var orderDetailTmp in listOrdetail)
@@ -117,11 +119,11 @@ namespace API_ShopingClose.Controllers
                     orderDetailArr[count] = orderDetailModel;
                     count++;
                 }
-                orderdata.OrderDetail = orderDetailArr;
+                orderdata.orderDetail = orderDetailArr;
                 return StatusCode(StatusCodes.Status200OK, orderdata);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 dynamic response = new
@@ -145,22 +147,26 @@ namespace API_ShopingClose.Controllers
 
             try
             {
-                orderModel.OrderstatusID = OrderContants.CREATED;
+                orderModel.orderStatusId = OrderContants.CREATED;
                 Order order = ConvertMethod.convertOrderModelToOrder(orderModel);
+
+                order.CreateDate = DateTime.Now;
+                order.UpdateDate = DateTime.Now;
+
                 order.UserID = Guid.Parse(GetUserId().ToString());
 
                 var orderId = await _orderService.InsertOrder(order);
                 if (orderId != null)
                 {
-                    foreach (var orderDetailTmp in orderModel.OrderDetail)
+                    foreach (var orderDetailTmp in orderModel.orderDetail)
                     {
                         OrderDetails orderDetail = new OrderDetails();
-                        orderDetail.ProductID = orderDetailTmp.ProductID;
-                        orderDetail.SizeID = orderDetailTmp.SizeID;
-                        orderDetail.ColorID = orderDetailTmp.ColorID;
-                        orderDetail.Qunatity = orderDetailTmp.Quantity;
-                        orderDetail.Promotion = orderDetailTmp.Promotion;
-                        orderDetail.Price = orderDetailTmp.Price;
+                        orderDetail.ProductID = orderDetailTmp.productId;
+                        orderDetail.SizeID = orderDetailTmp.sizeId;
+                        orderDetail.ColorID = orderDetailTmp.colorId;
+                        orderDetail.Qunatity = orderDetailTmp.quantity;
+                        orderDetail.Promotion = orderDetailTmp.promotion;
+                        orderDetail.Price = orderDetailTmp.price;
                         orderDetail.OrderID = Guid.Parse(orderId.ToString());
                         await _orderDetailService.InsertOrderDetail(orderDetail);
                     }

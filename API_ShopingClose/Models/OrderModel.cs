@@ -2,24 +2,24 @@
 {
     public class OrderModel
     {
-        public Guid? OrderID { get; set; }
+        public Guid? orderId { get; set; }
 
-        public Guid? UserID { get; set; }
+        public Guid? userId { get; set; }
 
-        public string? OrderstatusID { get; set; }
+        public string? orderStatusId { get; set; }
 
-        public string PhoneShip { get; set; }
+        public string phoneShip { get; set; }
 
-        public string AddresShip { get; set; }
+        public string addressShip { get; set; }
 
-        public string NameShip { get; set; }
+        public string nameShip { get; set; }
 
-        public string Note { get; set; }
+        public string note { get; set; }
 
-        public DateTime? CreateDate { get; set; }
+        public DateTime? createDate { get; set; }
 
-        public DateTime? UpdateDate { get; set; }
+        public DateTime? updateDate { get; set; }
 
-        public OrderDetailsModel[] OrderDetail { get; set; }
+        public OrderDetailsModel[] orderDetail { get; set; }
     }
 }
