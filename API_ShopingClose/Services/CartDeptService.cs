@@ -15,7 +15,7 @@ namespace API_ShopingClose.Service
         }
         public async Task<bool> InsertProductToCart(Cart cart)
         {
-            string insertCartCommand = "INSERT INTO cart (UserID, ProductID, SizeID, ColorID, ProductName, ProductImage, Quantity)" +
+            string insertCartCommand = "INSERT INTO cart (UserID, ProductID, SizeID, ColorID, ProductName, ProductImage, Quantity, Price)" +
                    "VALUES (@UserID,@ProductID,@SizeID,@ColorID,@ProductName,@ProductImage,@Quantity, @Price);";
 
             var parameters = new DynamicParameters();
@@ -51,15 +51,14 @@ namespace API_ShopingClose.Service
         {
             try
             {
-                bool b = false;
-                string sql = "SELECT * FROM cart where UserID=@UserID AND ProductID = @ProductID AND SizeID=@SizeID AND ColorID=@ColorID;";
+                string sql = "SELECT * FROM cart where UserID=@UserID AND ProductID=@ProductID AND SizeID=@SizeID AND ColorID=@ColorID;";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserID", userId);
                 parameters.Add("@ProductID", productId);
                 parameters.Add("@SizeID", sizeId);
                 parameters.Add("@ColorID", colorId);
-                Cart result = await this._conn.QueryFirstAsync<Cart>(sql, parameters);
+                var result = await this._conn.QueryFirstAsync<Cart>(sql, parameters);
                 return result;
             }
             catch (Exception e)
@@ -76,6 +75,19 @@ namespace API_ShopingClose.Service
             parameters.Add("@UserID", userId);
 
             return await this._conn.QueryAsync<Cart>(sql, parameters);
+        }
+
+        public async Task<bool> DeleteCart(Guid userId,Guid productId, string sizeId, string colorId)
+        {
+            string sql = "DELETE FROM cart WHERE UserID=@UserID AND ProductID=@ProductID AND SizeID=@SizeID AND ColorID=@ColorID";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserID", userId);
+            parameters.Add("@ProductID",productId);
+            parameters.Add("@SizeID", sizeId);
+            parameters.Add("@ColorID",colorId);
+
+            return await this._conn.ExecuteAsync(sql, parameters) > 0;
         }
     }
 }

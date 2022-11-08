@@ -14,14 +14,17 @@ namespace API_ShopingClose.Controllers
         OrderDeptService _orderService;
         OrderDetailDeptService _orderDetailService;
         ProductDeptService _productservice;
-
+        ProductDetailsDeptService _productDetailsService;
+        CartDeptService _cartDeptService;
         public OrdersController(IConfiguration config, ILogger<UsersController> logger,
-            OrderDeptService orderService, OrderDetailDeptService orderDetailService, ProductDeptService productservice) : base(logger)
+            OrderDeptService orderService, OrderDetailDeptService orderDetailService, ProductDeptService productservice, ProductDetailsDeptService productDetailsService, CartDeptService cartDeptService) : base(logger)
         {
             _config = config;
             _orderService = orderService;
             _orderDetailService = orderDetailService;
             _productservice = productservice;
+            _productDetailsService = productDetailsService;
+            _cartDeptService = cartDeptService;
         }
 
         [HttpGet]
@@ -162,21 +165,46 @@ namespace API_ShopingClose.Controllers
                     {
                         OrderDetails orderDetail = new OrderDetails();
                         orderDetail.ProductID = orderDetailTmp.productId;
+                        Product product = (await _productservice.getOneProduct(orderDetail.ProductID.ToString()));
+                        orderDetail.productName = product.ProductName;
+                        orderDetail.productImage = product.Image;
                         orderDetail.SizeID = orderDetailTmp.sizeId;
                         orderDetail.ColorID = orderDetailTmp.colorId;
                         orderDetail.Qunatity = orderDetailTmp.quantity;
                         orderDetail.Promotion = orderDetailTmp.promotion;
                         orderDetail.Price = orderDetailTmp.price;
                         orderDetail.OrderID = Guid.Parse(orderId.ToString());
-                        await _orderDetailService.InsertOrderDetail(orderDetail);
+                        var checkProductInProductDetail = await _productDetailsService.checkProductOrderDetail(orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
+                        if (checkProductInProductDetail != null&& checkProductInProductDetail.quantity>=orderDetail.Qunatity)
+                        {
+                            bool insertOrderDetail = await _orderDetailService.InsertOrderDetail(orderDetail);
+                            if (insertOrderDetail)
+                            {
+                                await _cartDeptService.DeleteCart(order.UserID, orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
+
+                                ProductDetails productDetail=await _productDetailsService.getOneProductDetail(orderDetail.ProductID, orderDetail.SizeID,orderDetail.ColorID);
+                                productDetail.quantity = productDetail.quantity - orderDetail.Qunatity;
+
+                                await _productDetailsService.updateProductDetails(productDetail);
+                                response = new
+                                    {
+                                        status = 201,
+                                        message = "Tạo đơn hàng thành công!",
+                                        data = orderId
+                                    };
+                            }
+                            else
+                            {
+                                await _orderService.DeleteOrder(order.OrderID);
+                            }
+                        }
+                        else
+                        {
+                            await _orderService.DeleteOrder(order.OrderID);
+                        }
+
                     }
                 }
-                response = new
-                {
-                    status = 201,
-                    message = "Tạo sản phẩm thành công!",
-                    data = orderId
-                };
                 return StatusCode(StatusCodes.Status201Created, response);
             }
             catch (Exception e)

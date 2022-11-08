@@ -105,4 +105,36 @@ public class ProductDetailsDeptService
 
         return (await _conn.QueryAsync<ProductDetails>(sql, parameters)).ToList();
     }
+
+    public async Task<ProductDetails?> getOneProductDetail (Guid productId, string sizeId, string colorId)
+    {
+        string sql = "select * from productdetails where ProductID = @ProductID AND SizeID=@SizeID AND ColorID=@ColorID";
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("@ProductID", productId);
+        parameters.Add("@SizeID", sizeId);
+        parameters.Add("@ColorID", colorId);
+        var result = await this._conn.QueryAsync<ProductDetails>(sql, parameters);
+        return result.FirstOrDefault();
+    }
+
+    public async Task<ProductDetails> checkProductOrderDetail(Guid productId, string sizeId, string colorId)
+    {
+        try
+        {
+            string sql = "SELECT * FROM productdetails where ProductID = @ProductID AND SizeID=@SizeID AND ColorID=@ColorID ;";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProductID", productId);
+            parameters.Add("@SizeID", sizeId);
+            parameters.Add("@ColorID", colorId);
+            var result = await this._conn.QueryFirstAsync<ProductDetails>(sql, parameters);
+            return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return null;
+        }
+    }
 }

@@ -65,5 +65,15 @@ namespace API_ShopingClose.Service
             parameters.Add("UserID", userId);
             return (await _conn.QueryAsync<Order>(sql, parameters)).ToList();
         }
+
+        public async Task<bool> DeleteOrder(Guid orderId)
+        {
+            string sql = "DELETE FROM order WHERE OrderID=@OrderID";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@OrderID",orderId);
+
+            return await this._conn.ExecuteAsync(sql, parameters) > 0;
+        }
     }
 }
