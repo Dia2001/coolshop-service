@@ -16,6 +16,10 @@
 
         public string Promotion { get; set; }
 
+        public string? productName { get; set; }
+
+        public string? productImage { get; set; }
+
         public Guid OrderID { get; set; }
     }
 }
