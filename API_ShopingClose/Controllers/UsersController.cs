@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using API_ShopingClose.Model;
 using API_ShopingClose.Helper;
+using API_ShopingClose.Common;
 
 namespace API_ShopingClose.Controllers
 {
@@ -108,14 +109,26 @@ namespace API_ShopingClose.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Guid))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult Register([FromBody] User user)
+        public IActionResult Register([FromBody] UserRegisterModel userModel)
         {
             try
             {
+                User user = new User();
+                user.FullName = userModel.fullName;
+                user.Username = userModel.userName;
+                user.PhoneNumber = userModel.phoneNumber;
+                user.PassWord = userModel.password;
+                user.RoleID = Constants.ROLE_CUSTOMER;
+                user.CreatedDate = DateTime.Now;
+                user.DeletedDate = null;
+                user.ModifiedDate = null;
+                user.LastOperatingTime = DateTime.Now;
+
+                Guid? userId = _userservice.InsertUser(user);
                 //Nếu thêm thành công thì trả về id của user ngoài ra thì thông báo lỗi
-                if (_userservice.InsertUser(user) == true)
+                if (userId != null)
                 {
-                    return StatusCode(StatusCodes.Status201Created, user.UserID);
+                    return StatusCode(StatusCodes.Status201Created, userId);
                 }
                 else
                 {

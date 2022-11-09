@@ -15,18 +15,26 @@ namespace API_ShopingClose.Controllers
         private readonly IConfiguration _config;
         CartDeptService _cartservice;
         ProductDeptService _productservice;
+        ProductDetailsDeptService _productDetailsDeptService;
         public CartsController(IConfiguration config, ILogger<UsersController> logger,
-            CartDeptService cartservice, ProductDeptService productservice) : base(logger)
+            CartDeptService cartservice, ProductDeptService productservice, ProductDetailsDeptService productDetailsDeptService) : base(logger)
         {
             _config = config;
             _cartservice = cartservice;
             _productservice = productservice;
+            _productDetailsDeptService = productDetailsDeptService;
         }
 
         [HttpPost]
         [Route("carts")]
         public async Task<IActionResult> CreateProductToCart([FromBody] CartModel cartmodel)
         {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
             try
             {
                 Cart cart = ConvertMethod.convertCartModelToCart(cartmodel);
@@ -36,44 +44,82 @@ namespace API_ShopingClose.Controllers
                 cart.productName = product.ProductName;
                 cart.productImage = product.Image;
                 cart.price = product.Price;
-                if (await _cartservice.checkUserProductCart(cart.userId, cart.productId,cart.sizeId,cart.colorId) != null)
+                Cart cartDb = await _cartservice.checkUserProductCart(cart.userId, cart.productId, cart.sizeId, cart.colorId);
+                ProductDetails productDetail = await _productDetailsDeptService.getOneProductDetail(cart.productId, cart.sizeId, cart.colorId);
+                if (cartDb != null)
                 {
-                    cart.quantity++;
-                    if (await _cartservice.updateProductToCart(cart))
+                    // Nếu sản phẩm nhập vào <1 thì xóa sản phẩm đó ra khỏi giỏ hàng
+                    if (cart.quantity <= 0)
                     {
-                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                        cart.quantity += cartDb.quantity;
+                        if (cart.quantity <= productDetail.quantity)
+                        {
+                            if (await _cartservice.updateProductToCart(cart))
+                            {
+                                response = new
+                                {
+                                    status = 201,
+                                    message = "Thêm sản phẩm vào giỏ hàng thành công"
+                                };
+                            }
+                            else
+                            {
+                                throw new Exception("Thêm sản phẩm vào giỏ hàng thất bại.");
+                            }
+                            return StatusCode(StatusCodes.Status201Created, cart.productId);
+                        }
+                        else
+                        {
+                            throw new Exception("Số lượng sản phẩm không hợp lệ");
+                        }
                     }
                     else
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                       if(await _cartservice.DeleteCart(cart.userId, cart.productId, cart.sizeId, cart.colorId))
+                       {
+                            response = new
+                            {
+                                status = 200,
+                                message = "Sản phẩm đã được xóa khỏi giỏ hàng!",
+                            };
+                       }
+                       else
+                       {
+                            throw new Exception("Xóa sản phẩm khỏi giỏ hàng, thất bại");
+                       }
+                      return StatusCode(StatusCodes.Status200OK, cart.productId);
                     }
                 }
                 else
                 {
-                    if (await _cartservice.InsertProductToCart(cart) == true)
+                    if (cart.quantity <= productDetail.quantity)
                     {
+                        if(await _cartservice.InsertProductToCart(cart))
+                        {
+                            response = new
+                            {
+                                status = 201,
+                                message = "Thêm giỏ hàng thành công!",
+                            };
+                        }
+                        else
+                        {
+                            throw new Exception("Thêm sản phẩm vào giỏ hàng thất bại");
+                        }
                         return StatusCode(StatusCodes.Status201Created, cart.productId);
                     }
                     else
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "e002");
+                        throw new Exception("Số lượng sản phẩm không hợp lệ");
                     }
+                    
                 }
 
-            }
-            catch (MySqlException mySqlException)
-            {
-                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest, "e003");
-                }
-                Console.WriteLine(mySqlException.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                return StatusCode(StatusCodes.Status400BadRequest,response);
             }
         }
 

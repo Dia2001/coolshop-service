@@ -53,7 +53,7 @@ public class ConvertMethod
     {
         Product productTmp = productOld;
 
-        productTmp.ModifiedDate = new DateTime();
+        productTmp.ModifiedDate = DateTime.Now;
         productTmp.Rate = productNew.Rate;
         productTmp.Slug = productNew.Slug;
         productTmp.BrandID = productNew.BrandID;
@@ -77,13 +77,13 @@ public class ConvertMethod
     public static Order convertOrderModelToOrder(OrderModel orderModel)
     {
         Order order = new Order();
-        order.OrderstatusID = orderModel.OrderstatusID;
-        order.PhoneShip = orderModel.PhoneShip;
-        order.AddresShip = orderModel.AddresShip;
-        order.NameShip = orderModel.NameShip;
-        order.Note = orderModel.Note;
-        order.CreateDate = orderModel.CreateDate == null ? new DateTime() : orderModel.CreateDate;
-        order.UpdateDate = orderModel.UpdateDate == null ? new DateTime() : orderModel.UpdateDate;
+        order.OrderstatusID = orderModel.orderStatusId;
+        order.PhoneShip = orderModel.phoneShip;
+        order.AddresShip = orderModel.addressShip;
+        order.NameShip = orderModel.nameShip;
+        order.Note = orderModel.note;
+        order.CreateDate = orderModel.createDate == null ? DateTime.Now : orderModel.createDate;
+        order.UpdateDate = orderModel.updateDate == null ? DateTime.Now : orderModel.updateDate;
 
         return order;
     }
@@ -91,30 +91,32 @@ public class ConvertMethod
     public static OrderModel convertOrderToOrderModel(Order order)
     {
         OrderModel orderModel = new OrderModel();
-        orderModel.OrderID = order.OrderID;
-        orderModel.UserID = order.UserID;
-        orderModel.OrderstatusID=order.OrderstatusID;
-        orderModel.PhoneShip= order.PhoneShip;
-        orderModel.AddresShip= order.AddresShip;
-        orderModel.NameShip= order.NameShip;
-        orderModel.Note = order.Note;
-        orderModel.CreateDate = order.CreateDate;
-        orderModel.UpdateDate = order.UpdateDate;
+        orderModel.orderId = order.OrderID;
+        orderModel.userId = order.UserID;
+        orderModel.orderStatusId = order.OrderstatusID;
+        orderModel.phoneShip = order.PhoneShip;
+        orderModel.addressShip = order.AddresShip;
+        orderModel.nameShip = order.NameShip;
+        orderModel.note = order.Note;
+        orderModel.createDate = order.CreateDate;
+        orderModel.updateDate = order.UpdateDate;
 
         return orderModel;
     }
-    
+
     public static OrderDetailsModel convertOrderDetailsToOrderDetailModel(OrderDetails orderDetailTmp)
     {
         OrderDetailsModel orderDetailModel = new OrderDetailsModel();
-        orderDetailModel.OrderdetailID = orderDetailTmp.OrderdetailID;
-        orderDetailModel.ProductID = orderDetailTmp.ProductID;
-        orderDetailModel.SizeID = orderDetailTmp.SizeID;
-        orderDetailModel.ColorID = orderDetailTmp.ColorID;
-        orderDetailModel.Quantity = orderDetailTmp.Qunatity;
-        orderDetailModel.Price = orderDetailTmp.Price;
-        orderDetailModel.Promotion = orderDetailTmp.Promotion;
-        orderDetailModel.OrderID = orderDetailTmp.OrderID;
+        orderDetailModel.orderDetailId = orderDetailTmp.OrderdetailID;
+        orderDetailModel.productId = orderDetailTmp.ProductID;
+        orderDetailModel.sizeId = orderDetailTmp.SizeID;
+        orderDetailModel.colorId = orderDetailTmp.ColorID;
+        orderDetailModel.quantity = orderDetailTmp.Qunatity;
+        orderDetailModel.price = orderDetailTmp.Price;
+        orderDetailModel.productName = orderDetailTmp.productName;
+        orderDetailModel.productImage = orderDetailTmp.productImage;
+        orderDetailModel.promotion = orderDetailTmp.Promotion;
+        orderDetailModel.orderId = orderDetailTmp.OrderID;
 
         return orderDetailModel;
     }

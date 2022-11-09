@@ -2,20 +2,25 @@
 {
     public class OrderDetailsModel
     {
-        public Guid? OrderdetailID { get; set; }
+        public Guid? orderDetailId { get; set; }
 
-        public Guid ProductID { get; set; }
+        public Guid productId { get; set; }
 
-        public string SizeID { get; set; }
+        public string sizeId { get; set; }
 
-        public string ColorID { get; set; }
+        public string colorId { get; set; }
 
-        public int Quantity { get; set; }
+        public int quantity { get; set; }
 
-        public decimal? Price { get; set; }
+        public decimal? price { get; set; }
 
-        public string? Promotion { get; set; }
+        public string? promotion { get; set; }
 
-        public Guid? OrderID { get; set; }
+        public string? productName{ get; set; }
+
+
+        public string? productImage { get; set; }
+
+        public Guid? orderId { get; set; }
     }
 }

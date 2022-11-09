@@ -14,14 +14,17 @@ namespace API_ShopingClose.Controllers
         OrderDeptService _orderService;
         OrderDetailDeptService _orderDetailService;
         ProductDeptService _productservice;
-
+        ProductDetailsDeptService _productDetailsService;
+        CartDeptService _cartDeptService;
         public OrdersController(IConfiguration config, ILogger<UsersController> logger,
-            OrderDeptService orderService, OrderDetailDeptService orderDetailService, ProductDeptService productservice) : base(logger)
+            OrderDeptService orderService, OrderDetailDeptService orderDetailService, ProductDeptService productservice, ProductDetailsDeptService productDetailsService, CartDeptService cartDeptService) : base(logger)
         {
             _config = config;
             _orderService = orderService;
             _orderDetailService = orderDetailService;
             _productservice = productservice;
+            _productDetailsService = productDetailsService;
+            _cartDeptService = cartDeptService;
         }
 
         [HttpGet]
@@ -32,11 +35,11 @@ namespace API_ShopingClose.Controllers
             {
 
                 List<OrderModel> orderModes = new List<OrderModel>();
-                List<Order> orders =(await _orderService.getAllOrder()).ToList();
-                foreach(var ordertemp in orders)
+                List<Order> orders = (await _orderService.getAllOrder()).ToList();
+                foreach (var ordertemp in orders)
                 {
                     OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
-                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                     OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
@@ -45,15 +48,16 @@ namespace API_ShopingClose.Controllers
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
-                    orderdata.OrderDetail = orderDetailArr;
+                    orderdata.orderDetail = orderDetailArr;
                     orderModes.Add(orderdata);
                 }
                 return StatusCode(StatusCodes.Status200OK, orderModes);
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 dynamic response = new
                 {
                     status = 500,
@@ -74,7 +78,7 @@ namespace API_ShopingClose.Controllers
                 foreach (var ordertemp in orders)
                 {
                     OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(ordertemp);
-                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                    List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                     OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                     int count = 0;
                     foreach (var orderDetailTmp in listOrdetail)
@@ -83,13 +87,14 @@ namespace API_ShopingClose.Controllers
                         orderDetailArr[count] = orderDetailModel;
                         count++;
                     }
-                    orderdata.OrderDetail = orderDetailArr;
+                    orderdata.orderDetail = orderDetailArr;
                     orderModes.Add(orderdata);
                 }
                 return StatusCode(StatusCodes.Status200OK, orderModes);
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 dynamic response = new
                 {
                     status = 500,
@@ -106,9 +111,9 @@ namespace API_ShopingClose.Controllers
             try
             {
                 Order order = await _orderService.getOneOrderByUserIdAndOrderId(Guid.Parse(GetUserId().ToString()), orderId);
-                OrderModel orderdata =ConvertMethod.convertOrderToOrderModel(order);
-                Console.WriteLine(Guid.Parse(orderdata.OrderID.ToString()));
-                List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.OrderID.ToString()))).ToList();
+                OrderModel orderdata = ConvertMethod.convertOrderToOrderModel(order);
+                Console.WriteLine(Guid.Parse(orderdata.orderId.ToString()));
+                List<OrderDetails> listOrdetail = (await _orderDetailService.getAllOrderDetailByOrderId(Guid.Parse(orderdata.orderId.ToString()))).ToList();
                 OrderDetailsModel[] orderDetailArr = new OrderDetailsModel[listOrdetail.Count()];
                 int count = 0;
                 foreach (var orderDetailTmp in listOrdetail)
@@ -117,11 +122,11 @@ namespace API_ShopingClose.Controllers
                     orderDetailArr[count] = orderDetailModel;
                     count++;
                 }
-                orderdata.OrderDetail = orderDetailArr;
+                orderdata.orderDetail = orderDetailArr;
                 return StatusCode(StatusCodes.Status200OK, orderdata);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 dynamic response = new
@@ -143,38 +148,73 @@ namespace API_ShopingClose.Controllers
                 message = "Call servser faile!",
             };
 
+            Guid? orderId = null;
+
             try
             {
-                orderModel.OrderstatusID = OrderContants.CREATED;
+                orderModel.orderStatusId = OrderContants.CREATED;
                 Order order = ConvertMethod.convertOrderModelToOrder(orderModel);
+
+                order.CreateDate = DateTime.Now;
+                order.UpdateDate = DateTime.Now;
+
                 order.UserID = Guid.Parse(GetUserId().ToString());
 
-                var orderId = await _orderService.InsertOrder(order);
+                orderId = await _orderService.InsertOrder(order);
                 if (orderId != null)
                 {
-                    foreach (var orderDetailTmp in orderModel.OrderDetail)
+                    foreach (var orderDetailTmp in orderModel.orderDetail)
                     {
                         OrderDetails orderDetail = new OrderDetails();
-                        orderDetail.ProductID = orderDetailTmp.ProductID;
-                        orderDetail.SizeID = orderDetailTmp.SizeID;
-                        orderDetail.ColorID = orderDetailTmp.ColorID;
-                        orderDetail.Qunatity = orderDetailTmp.Quantity;
-                        orderDetail.Promotion = orderDetailTmp.Promotion;
-                        orderDetail.Price = orderDetailTmp.Price;
+                        orderDetail.ProductID = orderDetailTmp.productId;
+                        Product product = (await _productservice.getOneProduct(orderDetail.ProductID.ToString()));
+                        Console.WriteLine(product.ProductName);
+                        orderDetail.productName = product.ProductName;
+                        orderDetail.productImage = product.Image;
+                        orderDetail.SizeID = orderDetailTmp.sizeId;
+                        orderDetail.ColorID = orderDetailTmp.colorId;
+                        orderDetail.Qunatity = orderDetailTmp.quantity;
+                        orderDetail.Promotion = orderDetailTmp.promotion;
+                        orderDetail.Price = orderDetailTmp.price;
                         orderDetail.OrderID = Guid.Parse(orderId.ToString());
-                        await _orderDetailService.InsertOrderDetail(orderDetail);
+                        var checkProductInProductDetail = await _productDetailsService.checkProductOrderDetail(orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
+                        if (checkProductInProductDetail != null && checkProductInProductDetail.quantity >= orderDetail.Qunatity)
+                        {
+                            bool insertOrderDetail = await _orderDetailService.InsertOrderDetail(orderDetail);
+                            if (insertOrderDetail)
+                            {
+                                await _cartDeptService.DeleteCart(order.UserID, orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
+
+                                ProductDetails productDetail = await _productDetailsService.getOneProductDetail(orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
+                                productDetail.quantity = productDetail.quantity - orderDetail.Qunatity;
+
+                                await _productDetailsService.updateProductDetails(productDetail);
+                                response = new
+                                {
+                                    status = 201,
+                                    message = "Tạo đơn hàng thành công!",
+                                    data = orderId
+                                };
+                            }
+                            else
+                            {
+                                throw new Exception("Lỗi thêm chi tiết đơn hàng!");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Sản phẩm không tồn tại hoặc số lượng không hợp lệ!");
+                        }
                     }
+                    return StatusCode(StatusCodes.Status201Created, response);
                 }
-                response = new
-                {
-                    status = 201,
-                    message = "Tạo sản phẩm thành công!",
-                    data = orderId
-                };
-                return StatusCode(StatusCodes.Status201Created, response);
             }
             catch (Exception e)
             {
+                if (orderId != null)
+                {
+                    await _orderService.DeleteOrder(Guid.Parse(orderId.ToString()));
+                }
                 Console.WriteLine(e.Message);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
