@@ -113,10 +113,10 @@ public class ConvertMethod
         orderDetailModel.colorId = orderDetailTmp.ColorID;
         orderDetailModel.quantity = orderDetailTmp.Qunatity;
         orderDetailModel.price = orderDetailTmp.Price;
-        orderDetailModel.promotion = orderDetailTmp.Promotion;
-        orderDetailModel.orderId = orderDetailTmp.OrderID;
         orderDetailModel.productName = orderDetailTmp.productName;
         orderDetailModel.productImage = orderDetailTmp.productImage;
+        orderDetailModel.promotion = orderDetailTmp.Promotion;
+        orderDetailModel.orderId = orderDetailTmp.OrderID;
 
         return orderDetailModel;
     }
