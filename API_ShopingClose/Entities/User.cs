@@ -60,7 +60,7 @@ namespace API_ShopingClose.Entities
         /// <summary>
         /// Ngày sửa gần nhất
         /// </summary>
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         /// <summary>
         /// Người sửa gần nhất
@@ -70,7 +70,7 @@ namespace API_ShopingClose.Entities
         /// <summary>
         /// Ngày xóa gần nhất
         /// </summary>
-        public DateTime DeletedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
 
         /// <summary>
         /// ID Role

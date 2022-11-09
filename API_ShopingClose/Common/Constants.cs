@@ -6,4 +6,6 @@ public class Constants
 
     public static readonly string ROOT_PATH_IMAGE_PRODUCT = @"./wwwroot/img/product/";
 
+    public static readonly string ROLE_CUSTOMER = "customer";
+
 }

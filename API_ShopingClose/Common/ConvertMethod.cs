@@ -115,6 +115,8 @@ public class ConvertMethod
         orderDetailModel.price = orderDetailTmp.Price;
         orderDetailModel.promotion = orderDetailTmp.Promotion;
         orderDetailModel.orderId = orderDetailTmp.OrderID;
+        orderDetailModel.productName = orderDetailTmp.productName;
+        orderDetailModel.productImage = orderDetailTmp.productImage;
 
         return orderDetailModel;
     }

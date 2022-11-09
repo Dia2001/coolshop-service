@@ -45,7 +45,7 @@ namespace API_ShopingClose.Service
             return userprofile;
         }
 
-        public bool InsertUser(User user)
+        public Guid? InsertUser(User user)
         {
             bool b = false;
             string insertUserCommand = "INSERT INTO user (UserID, Username, Password, PhoneNumber, Address, Fullname, LastOperatingTime, CreatedDate, CreatedBy, ModifiedDate, ModifiedBy, DeletedDate, RoleID)" +
@@ -68,7 +68,11 @@ namespace API_ShopingClose.Service
             parameters.Add("@RoleID", user.RoleID);
             b = this._conn.Execute(insertUserCommand, parameters) > 0;
 
-            return b;
+            if (b)
+            {
+                return userID;
+            }
+            return null;
         }
 
         // Mã hóa mật khẩu

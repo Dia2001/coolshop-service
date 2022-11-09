@@ -148,6 +148,8 @@ namespace API_ShopingClose.Controllers
                 message = "Call servser faile!",
             };
 
+            Guid? orderId = null;
+
             try
             {
                 orderModel.orderStatusId = OrderContants.CREATED;
@@ -158,7 +160,7 @@ namespace API_ShopingClose.Controllers
 
                 order.UserID = Guid.Parse(GetUserId().ToString());
 
-                var orderId = await _orderService.InsertOrder(order);
+                orderId = await _orderService.InsertOrder(order);
                 if (orderId != null)
                 {
                     foreach (var orderDetailTmp in orderModel.orderDetail)
@@ -166,6 +168,7 @@ namespace API_ShopingClose.Controllers
                         OrderDetails orderDetail = new OrderDetails();
                         orderDetail.ProductID = orderDetailTmp.productId;
                         Product product = (await _productservice.getOneProduct(orderDetail.ProductID.ToString()));
+                        Console.WriteLine(product.ProductName);
                         orderDetail.productName = product.ProductName;
                         orderDetail.productImage = product.Image;
                         orderDetail.SizeID = orderDetailTmp.sizeId;
@@ -175,40 +178,43 @@ namespace API_ShopingClose.Controllers
                         orderDetail.Price = orderDetailTmp.price;
                         orderDetail.OrderID = Guid.Parse(orderId.ToString());
                         var checkProductInProductDetail = await _productDetailsService.checkProductOrderDetail(orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
-                        if (checkProductInProductDetail != null&& checkProductInProductDetail.quantity>=orderDetail.Qunatity)
+                        if (checkProductInProductDetail != null && checkProductInProductDetail.quantity >= orderDetail.Qunatity)
                         {
                             bool insertOrderDetail = await _orderDetailService.InsertOrderDetail(orderDetail);
                             if (insertOrderDetail)
                             {
                                 await _cartDeptService.DeleteCart(order.UserID, orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
 
-                                ProductDetails productDetail=await _productDetailsService.getOneProductDetail(orderDetail.ProductID, orderDetail.SizeID,orderDetail.ColorID);
+                                ProductDetails productDetail = await _productDetailsService.getOneProductDetail(orderDetail.ProductID, orderDetail.SizeID, orderDetail.ColorID);
                                 productDetail.quantity = productDetail.quantity - orderDetail.Qunatity;
 
                                 await _productDetailsService.updateProductDetails(productDetail);
                                 response = new
-                                    {
-                                        status = 201,
-                                        message = "Tạo đơn hàng thành công!",
-                                        data = orderId
-                                    };
+                                {
+                                    status = 201,
+                                    message = "Tạo đơn hàng thành công!",
+                                    data = orderId
+                                };
                             }
                             else
                             {
-                                await _orderService.DeleteOrder(order.OrderID);
+                                throw new Exception("Lỗi thêm chi tiết đơn hàng!");
                             }
                         }
                         else
                         {
-                            await _orderService.DeleteOrder(order.OrderID);
+                            throw new Exception("Sản phẩm không tồn tại hoặc số lượng không hợp lệ!");
                         }
-
                     }
+                    return StatusCode(StatusCodes.Status201Created, response);
                 }
-                return StatusCode(StatusCodes.Status201Created, response);
             }
             catch (Exception e)
             {
+                if (orderId != null)
+                {
+                    await _orderService.DeleteOrder(Guid.Parse(orderId.ToString()));
+                }
                 Console.WriteLine(e.Message);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
