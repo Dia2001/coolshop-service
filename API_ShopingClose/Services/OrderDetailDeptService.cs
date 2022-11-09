@@ -16,7 +16,7 @@ namespace API_ShopingClose.Service
 
         public async Task<bool> InsertOrderDetail(OrderDetails orderDetail)
         {
-            string sql = "INSERT INTO orderdetail (OrderdetailID, ProductID, SizeID, ColorID, Qunatity, Price, Promotion, OrderID)" +
+            string sql = "INSERT INTO orderdetail (OrderdetailID, ProductID, SizeID, ColorID, Qunatity, Price, ProductName, ProductImage, Promotion, OrderID)" +
                    "VALUES (@OrderdetailID,@ProductID,@SizeID,@ColorID,@Qunatity,@Price,@Promotion,@OrderID);";
 
             var orderDetailId = Guid.NewGuid();
@@ -27,6 +27,8 @@ namespace API_ShopingClose.Service
             parameters.Add("@ColorID", orderDetail.ColorID);
             parameters.Add("@Qunatity", orderDetail.Qunatity);
             parameters.Add("@Price", orderDetail.Price);
+            parameters.Add("@ProductName", orderDetail.productName);
+            parameters.Add("@ProductImage", orderDetail.productImage);
             parameters.Add("@Promotion", orderDetail.Promotion);
             parameters.Add("@OrderID", orderDetail.OrderID);
 
