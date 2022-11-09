@@ -46,12 +46,12 @@ namespace API_ShopingClose.Controllers
                 cart.price = product.Price;
                 Cart cartDb = await _cartservice.checkUserProductCart(cart.userId, cart.productId, cart.sizeId, cart.colorId);
                 ProductDetails productDetail = await _productDetailsDeptService.getOneProductDetail(cart.productId, cart.sizeId, cart.colorId);
-                if (cartDb != null)
+                if (cartDb != null && productDetail != null)
                 {
-                    // Nếu sản phẩm nhập vào <1 thì xóa sản phẩm đó ra khỏi giỏ hàng
-                    if (cart.quantity <= 0)
+                    cart.quantity += cartDb.quantity;
+
+                    if (cart.quantity > 0)
                     {
-                        cart.quantity += cartDb.quantity;
                         if (cart.quantity <= productDetail.quantity)
                         {
                             if (await _cartservice.updateProductToCart(cart))
@@ -75,26 +75,26 @@ namespace API_ShopingClose.Controllers
                     }
                     else
                     {
-                       if(await _cartservice.DeleteCart(cart.userId, cart.productId, cart.sizeId, cart.colorId))
-                       {
+                        if (await _cartservice.DeleteCart(cart.userId, cart.productId, cart.sizeId, cart.colorId))
+                        {
                             response = new
                             {
                                 status = 200,
                                 message = "Sản phẩm đã được xóa khỏi giỏ hàng!",
                             };
-                       }
-                       else
-                       {
+                        }
+                        else
+                        {
                             throw new Exception("Xóa sản phẩm khỏi giỏ hàng, thất bại");
-                       }
-                      return StatusCode(StatusCodes.Status200OK, cart.productId);
+                        }
+                        return StatusCode(StatusCodes.Status200OK, cart.productId);
                     }
                 }
                 else
                 {
                     if (cart.quantity <= productDetail.quantity)
                     {
-                        if(await _cartservice.InsertProductToCart(cart))
+                        if (await _cartservice.InsertProductToCart(cart))
                         {
                             response = new
                             {
@@ -112,14 +112,14 @@ namespace API_ShopingClose.Controllers
                     {
                         throw new Exception("Số lượng sản phẩm không hợp lệ");
                     }
-                    
+
                 }
 
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest,response);
+                return StatusCode(StatusCodes.Status400BadRequest, response);
             }
         }
 

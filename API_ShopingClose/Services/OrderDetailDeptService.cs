@@ -38,7 +38,7 @@ namespace API_ShopingClose.Service
 
         public async Task<IEnumerable<OrderDetails>> getAllOrderDetailByOrderId(Guid orderId)
         {
-            string sql = "SELECT * from orderdetail where OrderID=@OrderID order by UpdateDate desc";
+            string sql = "SELECT * from orderdetail where OrderID=@OrderID";
 
             var parameters = new DynamicParameters();
             parameters.Add("@OrderID", orderId);

@@ -76,16 +76,15 @@ namespace API_ShopingClose.Service
 
             return await this._conn.QueryAsync<Cart>(sql, parameters);
         }
-
-        public async Task<bool> DeleteCart(Guid userId,Guid productId, string sizeId, string colorId)
+        public async Task<bool> DeleteCart(Guid userId, Guid productId, string sizeId, string colorId)
         {
             string sql = "DELETE FROM cart WHERE UserID=@UserID AND ProductID=@ProductID AND SizeID=@SizeID AND ColorID=@ColorID";
 
             var parameters = new DynamicParameters();
             parameters.Add("@UserID", userId);
-            parameters.Add("@ProductID",productId);
+            parameters.Add("@ProductID", productId);
             parameters.Add("@SizeID", sizeId);
-            parameters.Add("@ColorID",colorId);
+            parameters.Add("@ColorID", colorId);
 
             return await this._conn.ExecuteAsync(sql, parameters) > 0;
         }
