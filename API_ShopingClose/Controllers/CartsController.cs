@@ -87,12 +87,12 @@ namespace API_ShopingClose.Controllers
                         {
                             throw new Exception("Xóa sản phẩm khỏi giỏ hàng, thất bại");
                         }
-                        return StatusCode(StatusCodes.Status200OK, cart.productId);
+                        return StatusCode(StatusCodes.Status200OK, response);
                     }
                 }
                 else
                 {
-                    if (cart.quantity <= productDetail.quantity)
+                    if (cart.quantity > 0 && cart.quantity <= productDetail.quantity)
                     {
                         if (await _cartservice.InsertProductToCart(cart))
                         {
@@ -106,7 +106,7 @@ namespace API_ShopingClose.Controllers
                         {
                             throw new Exception("Thêm sản phẩm vào giỏ hàng thất bại");
                         }
-                        return StatusCode(StatusCodes.Status201Created, cart.productId);
+                        return StatusCode(StatusCodes.Status201Created, response);
                     }
                     else
                     {
@@ -118,6 +118,11 @@ namespace API_ShopingClose.Controllers
             }
             catch (Exception exception)
             {
+                response = new
+                {
+                    status = 201,
+                    message = exception.Message,
+                };
                 Console.WriteLine(exception.Message);
                 return StatusCode(StatusCodes.Status400BadRequest, response);
             }
