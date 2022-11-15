@@ -653,6 +653,40 @@ namespace API_ShopingClose.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("products/similar/{productId}")]
+        public async Task<IActionResult> getProductSmilarByIdProduct([FromRoute] Guid productId)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            if (!ModelState.IsValid)
+            {
+                response = new
+                {
+                    status = 400,
+                    message = "Dữ liệu gửi lên không hợp lệ!"
+                };
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+
+            try
+            {
+                List<Product> products = (await _productservice.getProductSmilarByIdProduct(productId)).ToList();
+                return StatusCode(StatusCodes.Status200OK, products);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+
         [HttpPost]
         [Route("products/quantity")]
         public async Task<IActionResult> addQuantityBySizeAndColor([FromBody] ProductDetailModel productDetailModel)

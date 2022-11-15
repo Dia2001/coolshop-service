@@ -219,5 +219,41 @@ namespace API_ShopingClose.Controllers
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
+
+        [HttpPut]
+        [Route("orders/{orderId}")]
+        public async Task<IActionResult> updateOrder([FromRoute] Guid orderId, [FromBody] OrderModel orderModel)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            try
+            {
+                Order order = await _orderService.getOrderById(orderId);
+                order.OrderstatusID = orderModel.orderStatusId;
+                order.PhoneShip = orderModel.phoneShip;
+                order.NameShip = orderModel.nameShip;
+                order.AddresShip = orderModel.addressShip;
+                order.Note = orderModel.note;
+                order.UpdateDate = DateTime.Now;
+                if (await _orderService.updateOrder(order))
+                {
+                    response = new
+                    {
+                        status = 200,
+                        message = "Sửa thành công",
+                    };
+                    return StatusCode(StatusCodes.Status200OK, response);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return StatusCode(StatusCodes.Status400BadRequest, response);
+        }
     }
 }
