@@ -653,7 +653,7 @@ namespace API_ShopingClose.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("products/similar/{productId}")]
         public async Task<IActionResult> getProductSmilarByIdProduct([FromRoute] Guid productId)
         {
@@ -678,7 +678,8 @@ namespace API_ShopingClose.Controllers
                 List<Product> products = (await _productservice.getProductSmilarByIdProduct(productId)).ToList();
                 return StatusCode(StatusCodes.Status200OK, products);
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, response);

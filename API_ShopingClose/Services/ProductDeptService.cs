@@ -164,7 +164,7 @@ namespace API_ShopingClose.Service
 
         public async Task<Product?> getOneProduct(string productIdorSlug)
         {
-            Guid productId=new Guid();
+            Guid productId = new Guid();
             var parameters = new DynamicParameters();
             string sql = "select * from product where ProductID=@ProductID";
             if (Guid.TryParse(productIdorSlug, out productId))
@@ -187,7 +187,7 @@ namespace API_ShopingClose.Service
 
             string whereClause = "";
             string productname = product.ProductName.NonUnicode().ToLower();
-            string[] wordsproduct =productname.Split(' ');
+            string[] wordsproduct = productname.Split(' ');
 
             foreach (var oneWordproduct in wordsproduct)
             {
@@ -206,20 +206,24 @@ namespace API_ShopingClose.Service
                "where " + whereClause +
                " AND  @SmallestValue<=product.Price AND product.Price<=@GreatestValue " +
                "AND productincategory.CategoryID IN(SELECT productincategory.CategoryID FROM productincategory WHERE  productincategory.ProductID=@ProductID) " +
-               "GROUP BY product.ProductID "+
+               "GROUP BY product.ProductID, productincategory.CategoryID " +
                "limit 10";
 
-            decimal priceSmallest =product.Price - decimal.Parse("100000.00");
+
+            Console.WriteLine(sql);
+
+
+            decimal priceSmallest = product.Price - decimal.Parse("100000.00");
             decimal priceGreatest = product.Price + decimal.Parse("100000.00");
 
             var parameters = new DynamicParameters();
-            parameters.Add("@ProductName",product.ProductName);
-            parameters.Add("@SmallestValue",priceSmallest);
-            parameters.Add("@GreatestValue",priceGreatest);
-            parameters.Add("@ProductID",product.ProductID);
+            parameters.Add("@ProductName", product.ProductName);
+            parameters.Add("@SmallestValue", priceSmallest);
+            parameters.Add("@GreatestValue", priceGreatest);
+            parameters.Add("@ProductID", product.ProductID);
 
             return (await this._conn.QueryAsync<Product>(sql, parameters)).ToList();
-        } 
+        }
     }
 
 
