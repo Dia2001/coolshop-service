@@ -14,10 +14,10 @@ namespace API_ShopingClose.Service
             _conn = conn;
         }
 
-        public IEnumerable<Category> GetAllCategory()
+        public async Task<IEnumerable<Category>> GetAllCategory()
         {
             string getAllCategoriesCommand = "SELECT * FROM category;";
-            var result = this._conn.Query<Category>(getAllCategoriesCommand);
+            var result =await this._conn.QueryAsync<Category>(getAllCategoriesCommand);
             return result;
         }
 

@@ -16,14 +16,16 @@ namespace API_ShopingClose.Controllers
         ProductDeptService _productservice;
         ProductInCategoryDeptService _productInCategoryService;
         ProductDetailsDeptService _productDetailService;
-
+        CategoryDeptService _categoryDeptService;
         public ProductsController(ProductDeptService productservice,
             ProductInCategoryDeptService productInCategoryService,
-            ProductDetailsDeptService productDetailsDeptService)
+            ProductDetailsDeptService productDetailsDeptService,
+            CategoryDeptService categoryDeptService)
         {
             _productservice = productservice;
             _productInCategoryService = productInCategoryService;
             _productDetailService = productDetailsDeptService;
+            _categoryDeptService = categoryDeptService;
         }
 
         // Lấy tất cả các sản phẩm
@@ -33,6 +35,14 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
+                DateTime startDay = DateTime.Parse("2022-11-09");
+                DateTime endDay = DateTime.Parse("2022-11-17 23:59:59");
+                TimeSpan ts = new TimeSpan(23, 59, 59);
+                DateTime b = DateTime.Now;
+                b = b.Date;
+                b = b.Date + ts;
+                var z = b;
+               // var a = (await _productservice.getTurnover()); 
                 List<Product> allProducts = (await _productservice.getAllProducts()).ToList();
                 List<ProductModel> products = new List<ProductModel>();
 
@@ -446,6 +456,150 @@ namespace API_ShopingClose.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("products/listofcategoriesandfeaturedproducts")]
+        public  async Task<IActionResult> getCategoryOfBestAndProduct()
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            try
+            {
+                List<Category> categorys = (await _productservice.getCategoryToProductBestSelling()).ToList();
+                List<FeaturedProductListModel> listCategoryProduct = new List<FeaturedProductListModel>();
+                foreach(var oneCategory in categorys)
+                {
+                    bool kt = false;
+                    FeaturedProductListModel categoryProduct = new FeaturedProductListModel();
+                    foreach(var onelistCategoryProduct in listCategoryProduct)
+                    {
+                        if (onelistCategoryProduct.categoryId == oneCategory.CategoryID)
+                        {
+                            kt = true;
+                        }
+                    }
+
+                    if (kt == false)
+                    {
+                        categoryProduct.categoryId = oneCategory.CategoryID;
+                        categoryProduct.name = oneCategory.CategoryName;
+                        List<Product> products = (await _productservice.getProductBestSellingToCategory(oneCategory.CategoryID)).ToList();
+                        foreach(Product? oneproduct in products)
+                        {
+                            if (categoryProduct.product == null)
+                            {
+                                categoryProduct.product = new List<Product>();
+                                categoryProduct.product.Add(oneproduct);
+                            }
+                            else
+                            {
+                                categoryProduct.product.Add(oneproduct);
+                            }
+                        }
+                    }
+                    listCategoryProduct.Add(categoryProduct);
+                }
+                return StatusCode(StatusCodes.Status200OK, listCategoryProduct);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpGet]
+        [Route("products/productofcategory")]
+        public async Task<IActionResult> getProductOfCategory()
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            try
+            {
+                List<Category> categorys = (await _categoryDeptService.GetAllCategory()).ToList();
+                List<FeaturedProductListModel> listCategoryProduct = new List<FeaturedProductListModel>();
+                foreach (var oneCategory in categorys)
+                {
+                    bool kt = false;
+                    FeaturedProductListModel categoryProduct = new FeaturedProductListModel();
+                    foreach (var onelistCategoryProduct in listCategoryProduct)
+                    {
+                        if (onelistCategoryProduct.categoryId == oneCategory.CategoryID)
+                        {
+                            kt = true;
+                        }
+                    }
+
+                    if (kt == false)
+                    {
+                        categoryProduct.categoryId = oneCategory.CategoryID;
+                        categoryProduct.name = oneCategory.CategoryName;
+                        List<Product> products = (await _productservice.getProductBestSellingToCategory(oneCategory.CategoryID)).ToList();
+                        foreach (Product? oneproduct in products)
+                        {
+                            if (categoryProduct.product == null)
+                            {
+                                categoryProduct.product = new List<Product>();
+                                categoryProduct.product.Add(oneproduct);
+                            }
+                            else
+                            {
+                                categoryProduct.product.Add(oneproduct);
+                            }
+                        }
+                    }
+                    listCategoryProduct.Add(categoryProduct);
+                }
+                return StatusCode(StatusCodes.Status200OK, listCategoryProduct);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpGet]
+        [Route("products/statistics/revenuemonthly")]
+        public async Task<IActionResult> getRevenueStatistics([FromBody] DateStatistical dateStatistical )
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+            try
+            {
+
+                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStatistical.startDate,dateStatistical.endDate)).ToList();
+                RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
+                int sumOder =0;
+                revenueStatistic.turnover = new List<decimal>();
+                revenueStatistic.order = new List<int>();
+                revenueStatistic.label = new List<String>();
+                foreach (var oneTurnover in listTurnover) { 
+                    revenueStatistic.turnover.Add(oneTurnover.turnover);
+                    revenueStatistic.order.Add(oneTurnover.orderNumber);
+                    revenueStatistic.label.Add(oneTurnover.createDate.Date.ToString("yyyy-MM-dd"));
+                }
+
+                revenueStatistic.num = revenueStatistic.label.Count;
+
+                return StatusCode(StatusCodes.Status200OK, revenueStatistic);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
 
         [HttpPost]
         [Route("products")]

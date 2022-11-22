@@ -18,11 +18,11 @@ namespace API_ShopingClose.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             try
             {
-                var categories = _categoryservice.GetAllCategory();
+                var categories = await _categoryservice.GetAllCategory();
 
                 List<CategoryModel> categoryModels = new List<CategoryModel>();
 

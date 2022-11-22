@@ -1,5 +1,6 @@
 ﻿using API_ShopingClose.Common;
 using API_ShopingClose.Entities;
+using API_ShopingClose.Models;
 using Dapper;
 using MySqlConnector;
 
@@ -224,7 +225,41 @@ namespace API_ShopingClose.Service
 
             return (await this._conn.QueryAsync<Product>(sql, parameters)).ToList();
         }
+
+        public async Task<IEnumerable<Category>> getCategoryToProductBestSelling()
+        {
+            string sql = "SELECT category.CategoryID, category.CategoryName FROM category " +
+                        "LEFT JOIN productincategory on category.CategoryID = productincategory.CategoryID " +
+                        "WHERE productincategory.ProductID IN(SELECT SUBQUERY.ProductID FROM (SELECT orderdetail.ProductID, SUM(orderdetail.Qunatity) AS Qunatity FROM orders " +
+                        "INNER JOIN orderdetail on orders.OrderID= orderdetail.OrderID " +
+                        "WHERE orders.OrderstatusID= 'deliveredToTransporter' " +
+                        "GROUP BY ProductID " +
+                        "ORDER BY Qunatity DESC " +
+                        "LIMIT 3) AS SUBQUERY) " +
+                        "GROUP BY category.CategoryID LIMIT 3; ";
+            return (await this._conn.QueryAsync<Category>(sql)).ToList();
+        }
+
+        public async Task<IEnumerable<Product>> getProductBestSellingToCategory(long categoryId)
+        {
+            string sql = "SELECT * FROM product " +
+                        "LEFT JOIN productincategory on product.ProductID = productincategory.ProductID " +
+                        "WHERE productincategory.CategoryID =" + categoryId +
+                        " GROUP BY product.ProductID LIMIT 6;";
+
+            return (await this._conn.QueryAsync<Product>(sql)).ToList();
+        }
+
+        public async Task<IEnumerable<TurnoverModel>> getTurnover(DateTime startDate,DateTime endDate)
+        {
+            string sql = "SELECT  orders.CreateDate,COUNT(orders.CreateDate) AS OrderNumber, SUM(orderdetail.Price) AS Turnover FROM orders " +
+                         "INNER JOIN orderdetail on orders.OrderID = orderdetail.OrderID " +
+                         "WHERE orders.CreateDate IN(SELECT orders.CreateDate FROM orders " +
+                                                    "WHERE CreateDate >=" + startDate +
+                                                    " AND CreateDate <=" + endDate +
+                                                    ")"+
+                         "GROUP BY orders.CreateDate;";
+            return (await this._conn.QueryAsync<TurnoverModel>(sql)).ToList();
+        }
     }
-
-
 }
