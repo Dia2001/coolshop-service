@@ -252,13 +252,13 @@ namespace API_ShopingClose.Service
 
         public async Task<IEnumerable<TurnoverModel>> getTurnover(DateTime startDate,DateTime endDate)
         {
-            string sql = "SELECT  orders.CreateDate,COUNT(orders.CreateDate) AS OrderNumber, SUM(orderdetail.Price) AS Turnover FROM orders " +
+            string sql = "SELECT  CAST(orders.CreateDate AS DATE) AS dates,COUNT(orders.CreateDate) AS OrderNumber, SUM(orderdetail.Price) AS Turnover FROM orders " +
                          "INNER JOIN orderdetail on orders.OrderID = orderdetail.OrderID " +
                          "WHERE orders.CreateDate IN(SELECT orders.CreateDate FROM orders " +
-                                                    "WHERE CreateDate >=" + startDate +
-                                                    " AND CreateDate <=" + endDate +
-                                                    ")"+
-                         "GROUP BY orders.CreateDate;";
+                                                    "WHERE CreateDate >='" +startDate.ToString("yyyy-MM-dd HH:mm:ss") +
+                                                    "' AND CreateDate <='" + endDate.ToString("yyyy-MM-dd HH:mm:ss") +
+                                                    "' GROUP BY orders.CreateDate)" +
+                         "GROUP BY dates;";
             return (await this._conn.QueryAsync<TurnoverModel>(sql)).ToList();
         }
     }

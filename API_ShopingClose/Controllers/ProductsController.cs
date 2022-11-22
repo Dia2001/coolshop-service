@@ -280,7 +280,6 @@ namespace API_ShopingClose.Controllers
                 };
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
-
         }
 
         // Lấy tất cả sản phẩm và phân trang
@@ -577,8 +576,9 @@ namespace API_ShopingClose.Controllers
             };
             try
             {
-
-                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStatistical.startDate,dateStatistical.endDate)).ToList();
+                TimeSpan tsStart = new TimeSpan(00,00,00);
+                TimeSpan tsEnd = new TimeSpan(23, 59, 59);
+                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStatistical.startDate = dateStatistical.startDate.Date + tsStart, dateStatistical.endDate = dateStatistical.endDate.Date + tsEnd)).ToList();
                 RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
                 int sumOder =0;
                 revenueStatistic.turnover = new List<decimal>();
@@ -587,7 +587,7 @@ namespace API_ShopingClose.Controllers
                 foreach (var oneTurnover in listTurnover) { 
                     revenueStatistic.turnover.Add(oneTurnover.turnover);
                     revenueStatistic.order.Add(oneTurnover.orderNumber);
-                    revenueStatistic.label.Add(oneTurnover.createDate.Date.ToString("yyyy-MM-dd"));
+                    revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
                 }
 
                 revenueStatistic.num = revenueStatistic.label.Count;
@@ -595,6 +595,50 @@ namespace API_ShopingClose.Controllers
                 return StatusCode(StatusCodes.Status200OK, revenueStatistic);
             }
             catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
+        [HttpGet]
+        [Route("products/statistics/revenuemonth")]
+        public async Task<IActionResult> getRevenueStatisticsMonth([FromBody] MonthYearStatisticalModel myStatistical)
+        {
+            dynamic response = new
+            {
+                status = 500,
+                message = "Call servser faile!",
+            };
+
+            try
+            {
+                DateTime dateStart = new DateTime(myStatistical.year,myStatistical.month,1);
+
+                int maxDateMonth = Utils.getMaxDateOfMonth(myStatistical.month, myStatistical.year);
+
+                DateTime dateEnd = new DateTime(myStatistical.year, myStatistical.month, maxDateMonth);
+
+                TimeSpan tsStart = new TimeSpan(00, 00, 00);
+                TimeSpan tsEnd = new TimeSpan(23, 59, 59);
+                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStart= dateStart.Date + tsStart, dateEnd = dateEnd.Date + tsEnd)).ToList();
+                RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
+                int sumOder = 0;
+                revenueStatistic.turnover = new List<decimal>();
+                revenueStatistic.order = new List<int>();
+                revenueStatistic.label = new List<String>();
+                foreach (var oneTurnover in listTurnover)
+                {
+                    revenueStatistic.turnover.Add(oneTurnover.turnover);
+                    revenueStatistic.order.Add(oneTurnover.orderNumber);
+                    revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
+                }
+
+                revenueStatistic.num = revenueStatistic.label.Count;
+
+                return StatusCode(StatusCodes.Status200OK, revenueStatistic);
+
+            }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, response);

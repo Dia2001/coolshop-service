@@ -2,7 +2,7 @@
 {
     public class TurnoverModel
     {
-        public DateTime createDate;
+        public DateTime dates;
 
         public int orderNumber;
 
