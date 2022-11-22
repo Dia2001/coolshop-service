@@ -680,40 +680,17 @@ namespace API_ShopingClose.Controllers
                         if (day.Date.ToString("yyyy-MM-dd").Equals(oneTurnover.dates.Date.ToString("yyyy-MM-dd")))
                         {
                             checkDate = true;
-                            if (revenueStatistic.turnover.Count < 12)
-                            {
-                                revenueStatistic.turnover.Add(oneTurnover.turnover);
-                                revenueStatistic.order.Add(oneTurnover.orderNumber);
-                                revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
-                            }
-                            else
-                            {
-                                sumTurnover += oneTurnover.turnover;
-                                sumOrder += oneTurnover.orderNumber;
-                                labeLastDay = oneTurnover.dates.Date.ToString("yyyy-MM-dd");
-                            }
+                            revenueStatistic.turnover.Add(oneTurnover.turnover);
+                            revenueStatistic.order.Add(oneTurnover.orderNumber);
+                            revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
                         }
                     }
                     if (!checkDate)
                     {
-                        if (revenueStatistic.turnover.Count < 12)
-                        {
                             revenueStatistic.turnover.Add(0);
                             revenueStatistic.order.Add(0);
                             revenueStatistic.label.Add(day.Date.ToString("yyyy-MM-dd"));
-                        }
-                        else
-                        {
-                            labeLastDay = day.Date.ToString("yyyy-MM-dd");
-                        }
                     }
-                }
-
-                if (labeLastDay != "")
-                {
-                    revenueStatistic.turnover.Add(sumTurnover);
-                    revenueStatistic.order.Add(sumOrder);
-                    revenueStatistic.label.Add(labeLastDay);
                 }
 
                 revenueStatistic.num = revenueStatistic.label.Count;
