@@ -17,7 +17,7 @@ namespace API_ShopingClose.Service
         public async Task<IEnumerable<Category>> GetAllCategory()
         {
             string getAllCategoriesCommand = "SELECT * FROM category;";
-            var result =await this._conn.QueryAsync<Category>(getAllCategoriesCommand);
+            var result = await this._conn.QueryAsync<Category>(getAllCategoriesCommand);
             return result;
         }
 
@@ -25,8 +25,8 @@ namespace API_ShopingClose.Service
         public bool addCategory(Category category)
         {
             bool b = false;
-            string sql = "INSERT INTO category ( CategoryID , CategoryName , Description , Slug , IsShow)" +
-                   "VALUES ( @CategoryID , @CategoryName , @Description , @Slug , @IsShow);";
+            string sql = "INSERT INTO category ( CategoryID , CategoryName , Description , Slug , IsShow, parentId)" +
+                   "VALUES ( @CategoryID , @CategoryName , @Description , @Slug , @IsShow, @parentId);";
 
             var parameters = new DynamicParameters();
             parameters.Add("@CategoryID", category.CategoryID);
@@ -34,6 +34,7 @@ namespace API_ShopingClose.Service
             parameters.Add("@Description", category.Description);
             parameters.Add("@Slug", category.slug);
             parameters.Add("@IsShow", category.isShow);
+            parameters.Add("@parentId", category.parentId);
             b = this._conn.Execute(sql, parameters) > 0;
 
             return b;

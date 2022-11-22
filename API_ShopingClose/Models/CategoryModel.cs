@@ -13,6 +13,8 @@ public class CategoryModel
 
     public Boolean isShow { get; set; }
 
+    public long? parentId { get; set; }
+
     public CategoryModel(Category category)
     {
         categoryId = category.CategoryID;
@@ -20,5 +22,6 @@ public class CategoryModel
         slug = category.slug;
         description = category.Description;
         isShow = category.isShow;
+        parentId = category.parentId;
     }
 }

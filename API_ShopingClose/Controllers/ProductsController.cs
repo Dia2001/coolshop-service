@@ -42,7 +42,7 @@ namespace API_ShopingClose.Controllers
                 b = b.Date;
                 b = b.Date + ts;
                 var z = b;
-               // var a = (await _productservice.getTurnover()); 
+                // var a = (await _productservice.getTurnover()); 
                 List<Product> allProducts = (await _productservice.getAllProducts()).ToList();
                 List<ProductModel> products = new List<ProductModel>();
 
@@ -457,7 +457,7 @@ namespace API_ShopingClose.Controllers
 
         [HttpGet]
         [Route("products/listofcategoriesandfeaturedproducts")]
-        public  async Task<IActionResult> getCategoryOfBestAndProduct()
+        public async Task<IActionResult> getCategoryOfBestAndProduct()
         {
             dynamic response = new
             {
@@ -469,11 +469,11 @@ namespace API_ShopingClose.Controllers
             {
                 List<Category> categorys = (await _productservice.getCategoryToProductBestSelling()).ToList();
                 List<FeaturedProductListModel> listCategoryProduct = new List<FeaturedProductListModel>();
-                foreach(var oneCategory in categorys)
+                foreach (var oneCategory in categorys)
                 {
                     bool kt = false;
                     FeaturedProductListModel categoryProduct = new FeaturedProductListModel();
-                    foreach(var onelistCategoryProduct in listCategoryProduct)
+                    foreach (var onelistCategoryProduct in listCategoryProduct)
                     {
                         if (onelistCategoryProduct.categoryId == oneCategory.CategoryID)
                         {
@@ -486,7 +486,7 @@ namespace API_ShopingClose.Controllers
                         categoryProduct.categoryId = oneCategory.CategoryID;
                         categoryProduct.name = oneCategory.CategoryName;
                         List<Product> products = (await _productservice.getProductBestSellingToCategory(oneCategory.CategoryID)).ToList();
-                        foreach(Product? oneproduct in products)
+                        foreach (Product? oneproduct in products)
                         {
                             if (categoryProduct.product == null)
                             {
@@ -503,7 +503,7 @@ namespace API_ShopingClose.Controllers
                 }
                 return StatusCode(StatusCodes.Status200OK, listCategoryProduct);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
@@ -565,9 +565,9 @@ namespace API_ShopingClose.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("products/statistics/revenuemonthly")]
-        public async Task<IActionResult> getRevenueStatistics([FromBody] DateStatistical dateStatistical )
+        public async Task<IActionResult> getRevenueStatistics([FromBody] DateStatistical dateStatistical)
         {
             dynamic response = new
             {
@@ -576,15 +576,15 @@ namespace API_ShopingClose.Controllers
             };
             try
             {
-                TimeSpan tsStart = new TimeSpan(00,00,00);
+                TimeSpan tsStart = new TimeSpan(00, 00, 00);
                 TimeSpan tsEnd = new TimeSpan(23, 59, 59);
                 List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStatistical.startDate = dateStatistical.startDate.Date + tsStart, dateStatistical.endDate = dateStatistical.endDate.Date + tsEnd)).ToList();
                 RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
-                int sumOder =0;
                 revenueStatistic.turnover = new List<decimal>();
                 revenueStatistic.order = new List<int>();
                 revenueStatistic.label = new List<String>();
-                foreach (var oneTurnover in listTurnover) { 
+                foreach (var oneTurnover in listTurnover)
+                {
                     revenueStatistic.turnover.Add(oneTurnover.turnover);
                     revenueStatistic.order.Add(oneTurnover.orderNumber);
                     revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
@@ -601,7 +601,7 @@ namespace API_ShopingClose.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("products/statistics/revenuemonth")]
         public async Task<IActionResult> getRevenueStatisticsMonth([FromBody] MonthYearStatisticalModel myStatistical)
         {
@@ -613,7 +613,7 @@ namespace API_ShopingClose.Controllers
 
             try
             {
-                DateTime dateStart = new DateTime(myStatistical.year,myStatistical.month,1);
+                DateTime dateStart = new DateTime(myStatistical.year, myStatistical.month, 1);
 
                 int maxDateMonth = Utils.getMaxDateOfMonth(myStatistical.month, myStatistical.year);
 
@@ -621,9 +621,8 @@ namespace API_ShopingClose.Controllers
 
                 TimeSpan tsStart = new TimeSpan(00, 00, 00);
                 TimeSpan tsEnd = new TimeSpan(23, 59, 59);
-                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStart= dateStart.Date + tsStart, dateEnd = dateEnd.Date + tsEnd)).ToList();
+                List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStart = dateStart.Date + tsStart, dateEnd = dateEnd.Date + tsEnd)).ToList();
                 RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
-                int sumOder = 0;
                 revenueStatistic.turnover = new List<decimal>();
                 revenueStatistic.order = new List<int>();
                 revenueStatistic.label = new List<String>();
@@ -638,7 +637,8 @@ namespace API_ShopingClose.Controllers
 
                 return StatusCode(StatusCodes.Status200OK, revenueStatistic);
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
@@ -774,7 +774,6 @@ namespace API_ShopingClose.Controllers
                 Product product = ConvertMethod.convertProductModleToProduct(productModel);
 
                 Product productOld = await _productservice.getOneProduct(productId);
-                Console.WriteLine(productOld.Image);
                 if (file != null)
                 {
                     if (!Validate.ValidateImageFileNameUpload(file.ContentType))

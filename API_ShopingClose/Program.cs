@@ -45,43 +45,43 @@ builder.Services.AddControllers();
 string conn = builder.Configuration.GetConnectionString("mysqlConnetionStrings");
 
 // Mỗi khi chạy ứng dụng nó chỉ khởi tạo đúng 1 lần new UserDeptService
-builder.Services.AddSingleton<UserDeptService>(s =>
+builder.Services.AddTransient<UserDeptService>(s =>
     new UserDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<RoleDeptService>(s =>
+builder.Services.AddTransient<RoleDeptService>(s =>
     new RoleDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<ProductDeptService>(s =>
+builder.Services.AddTransient<ProductDeptService>(s =>
     new ProductDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<ProductInCategoryDeptService>(s =>
+builder.Services.AddTransient<ProductInCategoryDeptService>(s =>
     new ProductInCategoryDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<ProductDetailsDeptService>(s =>
+builder.Services.AddTransient<ProductDetailsDeptService>(s =>
     new ProductDetailsDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<BrandDeptService>(s =>
+builder.Services.AddTransient<BrandDeptService>(s =>
     new BrandDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<CategoryDeptService>(s =>
+builder.Services.AddTransient<CategoryDeptService>(s =>
     new CategoryDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<SizeDeptService>(s =>
+builder.Services.AddTransient<SizeDeptService>(s =>
     new SizeDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<ColorDeptService>(s =>
+builder.Services.AddTransient<ColorDeptService>(s =>
     new ColorDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<GalleryDeptService>(s =>
+builder.Services.AddTransient<GalleryDeptService>(s =>
     new GalleryDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<CartDeptService>(s =>
+builder.Services.AddTransient<CartDeptService>(s =>
     new CartDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<OrderDeptService>(s =>
+builder.Services.AddTransient<OrderDeptService>(s =>
     new OrderDeptService(new MySqlConnection(conn)));
 
-builder.Services.AddSingleton<OrderDetailDeptService>(s =>
+builder.Services.AddTransient<OrderDetailDeptService>(s =>
     new OrderDetailDeptService(new MySqlConnection(conn)));
 
 builder.Services.AddEndpointsApiExplorer();

@@ -14,5 +14,7 @@ namespace API_ShopingClose.Entities
         public string slug { get; set; }
 
         public Boolean isShow { get; set; }
+
+        public long? parentId { get; set; }
     }
 }
