@@ -579,56 +579,159 @@ namespace API_ShopingClose.Controllers
                 TimeSpan tsStart = new TimeSpan(00, 00, 00);
                 TimeSpan tsEnd = new TimeSpan(23, 59, 59);
                 List<TurnoverModel> listTurnover = (await _productservice.getTurnover(dateStatistical.startDate = dateStatistical.startDate.Date + tsStart, dateStatistical.endDate = dateStatistical.endDate.Date + tsEnd)).ToList();
-                var allDate = Utils.EachDay(dateStatistical.startDate = dateStatistical.startDate.Date + tsStart, dateStatistical.endDate = dateStatistical.endDate.Date + tsEnd);
+                IEnumerable<DateTime> allDate = Utils.EachDay(dateStatistical.startDate = dateStatistical.startDate.Date + tsStart, dateStatistical.endDate = dateStatistical.endDate.Date + tsEnd);
                 RevenueStatisticsModel revenueStatistic = new RevenueStatisticsModel();
                 revenueStatistic.turnover = new List<decimal>();
                 revenueStatistic.order = new List<int>();
                 revenueStatistic.label = new List<String>();
+                int sdate = 30;
+                int cdate = allDate.Count<DateTime>();
+
+                int x = cdate / sdate;
+
                 string labeLastDay = "";
                 decimal sumTurnover = 0;
                 int sumOrder = 0;
-                foreach (DateTime day in allDate)
+
+                if (x <= 1)
                 {
-                    bool checkDate = false;
-                    foreach (var oneTurnover in listTurnover)
+                    foreach (DateTime day in allDate)
                     {
-                        if (day.Date.ToString("yyyy-MM-dd").Equals(oneTurnover.dates.Date.ToString("yyyy-MM-dd")))
+                        bool checkDate = false;
+                        foreach (var oneTurnover in listTurnover)
                         {
-                            checkDate = true;
-                            if (revenueStatistic.turnover.Count < 12)
+                            if (day.Date.ToString("yyyy-MM-dd").Equals(oneTurnover.dates.Date.ToString("yyyy-MM-dd")))
                             {
-                                revenueStatistic.turnover.Add(oneTurnover.turnover);
-                                revenueStatistic.order.Add(oneTurnover.orderNumber);
-                                revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
+                                checkDate = true;
+                                if (revenueStatistic.turnover.Count < 30)
+                                {
+                                    revenueStatistic.turnover.Add(oneTurnover.turnover);
+                                    revenueStatistic.order.Add(oneTurnover.orderNumber);
+                                    revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
+                                }
+                                else
+                                {
+                                    sumTurnover += oneTurnover.turnover;
+                                    sumOrder += oneTurnover.orderNumber;
+                                    labeLastDay = oneTurnover.dates.Date.ToString("yyyy-MM-dd");
+                                }
+                            }
+                        }
+                        if (!checkDate)
+                        {
+                            if (revenueStatistic.turnover.Count < 30)
+                            {
+                                revenueStatistic.turnover.Add(0);
+                                revenueStatistic.order.Add(0);
+                                revenueStatistic.label.Add(day.Date.ToString("yyyy-MM-dd"));
                             }
                             else
                             {
-                                sumTurnover += oneTurnover.turnover;
-                                sumOrder += oneTurnover.orderNumber;
-                                labeLastDay = oneTurnover.dates.Date.ToString("yyyy-MM-dd");
+                                labeLastDay = day.Date.ToString("yyyy-MM-dd");
                             }
                         }
                     }
-                    if (!checkDate)
+
+                    if (labeLastDay != "")
                     {
-                        if (revenueStatistic.turnover.Count < 12)
+                        revenueStatistic.turnover.Add(sumTurnover);
+                        revenueStatistic.order.Add(sumOrder);
+                        revenueStatistic.label.Add(labeLastDay);
+                    }
+                }
+                else
+                {
+                    int i = 0;
+                    string xlabeLastDay = "";
+                    decimal xsumTurnover = 0;
+                    int xsumOrder = 0;
+                    foreach (DateTime day in allDate)
+                    {
+                        bool checkDate = false;
+                        if (allDate.First<DateTime>() == day)
                         {
-                            revenueStatistic.turnover.Add(0);
-                            revenueStatistic.order.Add(0);
-                            revenueStatistic.label.Add(day.Date.ToString("yyyy-MM-dd"));
+                            foreach (var oneTurnover in listTurnover)
+                            {
+                                if (day.Date.ToString("yyyy-MM-dd").Equals(oneTurnover.dates.Date.ToString("yyyy-MM-dd")))
+                                {
+                                    checkDate = true;
+                                    revenueStatistic.turnover.Add(oneTurnover.turnover);
+                                    revenueStatistic.order.Add(oneTurnover.orderNumber);
+                                    revenueStatistic.label.Add(oneTurnover.dates.Date.ToString("yyyy-MM-dd"));
+                                }
+                            }
+
+                            if (!checkDate)
+                            {
+                                revenueStatistic.turnover.Add(0);
+                                revenueStatistic.order.Add(0);
+                                revenueStatistic.label.Add(day.Date.ToString("yyyy-MM-dd"));
+                            }
                         }
                         else
                         {
-                            labeLastDay = day.Date.ToString("yyyy-MM-dd");
+                            i += 1;
+                            foreach (var oneTurnover in listTurnover)
+                            {
+                                if (day.Date.ToString("yyyy-MM-dd").Equals(oneTurnover.dates.Date.ToString("yyyy-MM-dd")))
+                                {
+                                    checkDate = true;
+                                    if (revenueStatistic.turnover.Count < 30)
+                                    {
+                                        xsumTurnover += oneTurnover.turnover;
+                                        xsumOrder += oneTurnover.orderNumber;
+                                        xlabeLastDay = oneTurnover.dates.Date.ToString("yyyy-MM-dd");
+                                        if (i % x == 0)
+                                        {
+                                            revenueStatistic.turnover.Add(xsumTurnover);
+                                            revenueStatistic.order.Add(xsumOrder);
+                                            revenueStatistic.label.Add(xlabeLastDay);
+                                            //gán lại value
+                                            xsumTurnover = 0;
+                                            xsumOrder = 0;
+                                            xlabeLastDay = "";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        sumTurnover += oneTurnover.turnover;
+                                        sumOrder += oneTurnover.orderNumber;
+                                        labeLastDay = oneTurnover.dates.Date.ToString("yyyy-MM-dd");
+                                    }
+                                }
+                            }
+                            if (!checkDate)
+                            {
+                                if (revenueStatistic.turnover.Count < 30)
+                                {
+                                    xlabeLastDay = day.Date.ToString("yyyy-MM-dd");
+                                    if (i % x == 0)
+                                    {
+                                        revenueStatistic.turnover.Add(xsumTurnover);
+                                        revenueStatistic.order.Add(xsumOrder);
+                                        revenueStatistic.label.Add(xlabeLastDay);
+                                        //gán lại value
+                                        xsumTurnover = 0;
+                                        xsumOrder = 0;
+                                        xlabeLastDay = "";
+                                    }
+                                }
+                                else
+                                {
+                                    labeLastDay = day.Date.ToString("yyyy-MM-dd");
+                                    xlabeLastDay= day.Date.ToString("yyyy-MM-dd");
+                                }
+                            }
                         }
                     }
-                }
 
-                if (labeLastDay != "")
-                {
-                    revenueStatistic.turnover.Add(sumTurnover);
-                    revenueStatistic.order.Add(sumOrder);
-                    revenueStatistic.label.Add(labeLastDay);
+                    if (labeLastDay != "")
+                    {
+                        revenueStatistic.turnover.Add(sumTurnover);
+                        revenueStatistic.order.Add(sumOrder);
+                        revenueStatistic.label.Add(labeLastDay);
+                    }
+
                 }
 
                 revenueStatistic.num = revenueStatistic.label.Count;
