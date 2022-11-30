@@ -91,20 +91,26 @@ namespace API_ShopingClose.Service
             return result.ToArray().Length > 0;
         }
 
+        // function filter pagination search for product page
         public async Task<Dictionary<String, dynamic>?> getFilterProduct(
              string? keyword,
              long? brandId,
+             long? categoriesId,
+             string? sizeId,
+             string? colorId,
+             decimal? price,
+             string? sort,
              int pageSize,
              int pageNumber)
         {
 
-            string storedProcedureName = "Proc_product_GetPaging";
+            string storedProcedureName = "Proc_product_GetPaging_1";
 
-            // Chuẩn bị tham số đầu vào cho stored procedure
             var parameters = new DynamicParameters();
             parameters.Add("@v_Offset", (pageNumber - 1) * pageSize);
             parameters.Add("@v_Limit", pageSize);
-            parameters.Add("@v_Sort", "Rate DESC");
+            string sortClause = sort != null ? Utils.getSortClause(sort) : "Rate DESC";
+            parameters.Add("@v_Sort",sortClause);
 
             var orConditions = new List<string>();
             var andConditions = new List<string>();
@@ -112,15 +118,49 @@ namespace API_ShopingClose.Service
 
             if (keyword != null)
             {
-                orConditions.Add($"ProductName LIKE '%{keyword}%'");
+                orConditions.Add($"product.ProductName LIKE '%{keyword}%'");
             }
+
             if (orConditions.Count > 0)
             {
                 whereClause = $"({string.Join(" OR ", orConditions)})";
             }
+
+            if (price != null)
+            {
+                var priceClause = Utils.getDecimalFilter(price);
+                string priceClauseOne = priceClause["priceClauseOne"];
+                string priceClauseTwo = priceClause["priceClauseTwo"];
+
+                if (priceClauseOne != "")
+                {
+                    andConditions.Add(priceClauseOne);
+                }
+
+                if (priceClauseTwo != "")
+                {
+                    andConditions.Add(priceClauseTwo);
+                }
+            }
+
             if (brandId != null)
             {
-                andConditions.Add($"BrandID LIKE '%{brandId}%'");
+                andConditions.Add($"product.BrandID = {brandId}");
+            }
+
+            if (categoriesId != null)
+            {
+                andConditions.Add($"productincategory.CategoryID= {categoriesId}");
+            }
+
+            if (sizeId != null)
+            {
+                andConditions.Add($"productdetails.SizeID= '{sizeId}'");
+            }
+
+            if (colorId != null)
+            {
+                andConditions.Add($"productdetails.ColorID= '{colorId}'");
             }
 
             if (andConditions.Count > 0)
@@ -136,8 +176,11 @@ namespace API_ShopingClose.Service
             }
 
             parameters.Add("@v_Where", whereClause);
+            Console.WriteLine("a " + whereClause);
+            whereClause = $" GROUP BY product.ProductID ";
+            parameters.Add("@v_GroupBy", whereClause);
+            Console.WriteLine("a"  + whereClause);
 
-            // Thực hiện gọi vào DB để chạy stored procedure với tham số đầu vào ở trên
             var multipleResults = _conn.QueryMultiple(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
 
             if (multipleResults != null)

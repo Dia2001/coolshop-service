@@ -288,12 +288,17 @@ namespace API_ShopingClose.Controllers
         public async Task<IActionResult> filterEmployees(
             [FromQuery] string? keyword,
             [FromQuery] long? brandId,
+            [FromQuery] long? categoriesId,
+            [FromQuery] string? sizeId,
+            [FromQuery] string? colorId,
+            [FromQuery] decimal? price,
+            [FromQuery] string? sort,
             [FromQuery] int pageSize = 10,
             [FromQuery] int pageNumber = 1)
         {
             try
             {                // Xử lý kết quả trả về từ DB
-                var result = await _productservice.getFilterProduct(keyword, brandId, pageSize, pageNumber);
+                var result = await _productservice.getFilterProduct(keyword, brandId,categoriesId,sizeId,colorId,price,sort, pageSize, pageNumber);
 
                 if (result != null)
                 {

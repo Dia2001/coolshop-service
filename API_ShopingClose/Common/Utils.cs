@@ -78,12 +78,117 @@ public static class Utils
                     break;
             }
         }
+        // You can use another, quicker way
+        /*  
+        *  DateTime.DaysInMonth(1980, 08);
+        */
         return maxDateMonth;
     }
 
+    // function get start day and end day
     public static IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
     {
         for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
             yield return day;
+    }
+
+    // function get clause filter by price 
+    public static IDictionary<string, string> getDecimalFilter(decimal? price)
+    {
+        string priceClauseOne = "";
+        string priceClauseTwo = "";
+
+        if (price == 100000)
+        {
+            priceClauseOne = $"product.Price < {price}";
+        }
+        else
+        {
+            if (price == 200000)
+            {
+                priceClauseOne = $"product.Price >= {100000}";
+                priceClauseTwo = $"product.Price <= {price}";
+            }
+            else
+            {
+                if (price == 350000)
+                {
+                    priceClauseOne = $"product.Price >= {200000}";
+                    priceClauseTwo = $"product.Price <= {price}";
+                }
+                else
+                {
+                    if (price == 500000)
+                    {
+                        priceClauseOne = $"product.Price >= {350000}";
+                        priceClauseTwo = $"product.Price <= {price}";
+                    }
+                    else
+                    {
+                        if (price == 700000)
+                        {
+                            priceClauseOne = $"product.Price >= {500000}";
+                            priceClauseTwo = $"product.Price <= {price}";
+                        }
+                        else
+                        {
+                            priceClauseOne = $"product.Price >= {700000}";
+                        }
+                    }
+                }
+            }
+        }
+
+        IDictionary<string, string> priceClause = new Dictionary<string, string>();
+
+        priceClause.Add("priceClauseOne", priceClauseOne);
+        priceClause.Add("priceClauseTwo", priceClauseTwo);
+
+        return priceClause;
+    }
+
+    // function get filter clause in sort
+    public static string getSortClause(string sort)
+    {
+        string sortClause = "";
+
+        if (sort.Equals("az"))
+        {
+            sortClause = "product.ProductName ASC";
+        }
+        else
+        {
+            if (sort.Equals("za"))
+            {
+                sortClause = "product.ProductName DES";
+            }
+            else
+            {
+                if (sort.Equals("cheap"))
+                {
+                    sortClause = "product.Price ASC";
+                }
+                else
+                {
+                    if (sort.Equals("decrease"))
+                    {
+                        sortClause = "product.Price DES";
+                    }
+                    else
+                    {
+                        if (sort.Equals("newer"))
+                        {
+                            sortClause = "product.CreatedDate DESC";
+                        }
+                        else
+                        {
+                            sortClause = "product.Rate DESC";
+                        }
+                    }
+                }
+            }
+        }
+
+        return sortClause;
     }
 }
