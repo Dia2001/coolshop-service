@@ -35,13 +35,7 @@ namespace API_ShopingClose.Controllers
         {
             try
             {
-                DateTime startDay = DateTime.Parse("2022-11-09");
-                DateTime endDay = DateTime.Parse("2022-11-17 23:59:59");
-                TimeSpan ts = new TimeSpan(23, 59, 59);
-                DateTime b = DateTime.Now;
-                b = b.Date;
-                b = b.Date + ts;
-                var z = b;
+                
                 // var a = (await _productservice.getTurnover()); 
                 List<Product> allProducts = (await _productservice.getAllProducts()).ToList();
                 List<ProductModel> products = new List<ProductModel>();
@@ -974,7 +968,7 @@ namespace API_ShopingClose.Controllers
                 {
                     product.Image = productOld.Image;
                 }
-
+                Console.WriteLine(product);
                 product = ConvertMethod.OverrideProduct(productOld, product);
 
                 if (productModel.slug == null || productModel.slug.Equals(""))

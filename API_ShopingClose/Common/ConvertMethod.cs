@@ -57,6 +57,7 @@ public class ConvertMethod
         productTmp.Rate = productNew.Rate;
         productTmp.Slug = productNew.Slug;
         productTmp.BrandID = productNew.BrandID;
+        productTmp.Price = productNew.Price;
         productTmp.Image = productNew.Image;
         productTmp.Description = productNew.Description;
         productTmp.ProductName = productNew.ProductName;
