@@ -1,6 +1,5 @@
 # Api for coolshop sales project.
-An communitcation app android with Firebase
-
+Build an api for a clothing sales system. Using Asp.net core framework and APIs designed according to RESTful API architecture. Use the object-relational mapping tool.
 # Presentation Slides
 https://docs.google.com/presentation/d/1kpNR2Xe_pOOtv2phsRTIWrEirgvC6V_FBiPgEZgoW1U/edit?usp=sharing
 # Database 
