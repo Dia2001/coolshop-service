@@ -24,6 +24,8 @@ namespace API_ShopingClose.Model
 
         public float rate { get; set; }
 
+        public IFormFile? file { get; set; }
+
     }
 
     public class Detail

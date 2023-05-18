@@ -809,7 +809,7 @@ namespace API_ShopingClose.Controllers
 
         [HttpPost]
         [Route("products")]
-        public async Task<IActionResult> createProduct([FromForm] ProductModel productModel, [FromForm] IFormFile? file)
+        public async Task<IActionResult> createProduct([FromForm] ProductModel productModel)
         {
             dynamic response = new
             {
@@ -818,9 +818,9 @@ namespace API_ShopingClose.Controllers
             };
 
             Product product = ConvertMethod.convertProductModleToProduct(productModel);
-            if (file != null)
+            if (productModel.file != null)
             {
-                if (!Validate.ValidateImageFileNameUpload(file.ContentType))
+                if (!Validate.ValidateImageFileNameUpload(productModel.file.ContentType))
                 {
                     response = new
                     {
@@ -830,7 +830,7 @@ namespace API_ShopingClose.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
 
-                if (file.Length > Constants.MAX_FILE_IMAGE_UPLOAD)
+                if (productModel.file.Length > Constants.MAX_FILE_IMAGE_UPLOAD)
                 {
                     response = new
                     {
@@ -840,7 +840,7 @@ namespace API_ShopingClose.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, response);
                 }
 
-                product.Image = await Utils.UploadFile(file);
+                product.Image = await Utils.UploadFile(productModel.file);
             }
 
             product.Slug = await getSlug(productModel.slug, productModel.name);
