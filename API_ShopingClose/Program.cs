@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tên ứng dụng của bạn", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api for coolshop sales project", Version = "v1" });
 
     // Thêm phần header Authorization vào Swagger UI
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -126,7 +126,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tên ứng dụng của bạn V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api for coolshop sales project");
 
         // Thêm nút "Authorize" để nhập token
         c.InjectJavascript("/js/customSwagger.js");
